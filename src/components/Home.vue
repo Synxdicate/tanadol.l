@@ -128,6 +128,30 @@ const bookshelf = ref([
     author: "Fyodor Dostoevsky",
     status: "Reading",
     coverArt: "https://static.wixstatic.com/media/936e61_fb65cc3c8955443c8c3fe7d95d6d7f32~mv2.jpg/v1/fit/w_500,h_500,q_90/file.jpg"
+  },
+  {
+    title: "Pride and Prejudice",
+    author: "Jane Austen",
+    status: "Reading",
+    coverArt: "https://bci.kinokuniya.com/jsp/images/book-img/97801/97801414/9780141439518.JPG"
+  },
+  {
+    title: "A Treatise of Human Nature",
+    author: "David Hume",
+    status: "Reading",
+    coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZmyllv6iEaoxAQrSKXKQqYt-4786fy3ZoZQ&s"
+  },
+  {
+    title: "Meditations",
+    author: "Marcus Aurelius",
+    status: "Reading",
+    coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQacn_nf34wrzKXEUzNard-mr1qg03XCza5Aw&s"
+  },
+  {
+    title: "White nights",
+    author: "Fyodor Dostoevsky",
+    status: "Reading",
+    coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdSLqB0TEGTmSwd-J84GCxoTo8d0IZ7D4Grw&s"
   }
 ])
 
