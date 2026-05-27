@@ -1,0 +1,17 @@
+:root {
+  background-color:#fffcf2; 
+  color: #252422;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #fffcf2;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
