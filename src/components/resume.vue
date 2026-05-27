@@ -5,7 +5,7 @@
       <header class="resume-header">
         <h1 class="resume-title monsieur-la-doulaise-regular">Resume</h1>
         <p class="resume-subtitle font-mono">
-          Downloadable version of my professional background.
+          Downloadable version of my background.
         </p>
       </header>
 
