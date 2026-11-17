@@ -1,202 +1,128 @@
+<script setup lang="ts">
+import { profile } from '../data/profile'
+</script>
+
 <template>
-  <div class="resume-wrapper">
-    
-    <div class="resume-interface">
-      <header class="resume-header">
-        <h1 class="resume-title monsieur-la-doulaise-regular">Resume</h1>
-        <p class="resume-subtitle font-mono">
-          Downloadable version of my background.
-        </p>
-      </header>
+  <div class="page">
+    <header class="page-header">
+      <h1 class="page-title">Resume</h1>
+      <p class="page-subtitle font-mono">Latest version of my CV.</p>
+    </header>
 
-      <div class="resume-meta-bar">
-        <div class="contact-links font-mono">
-          <a href="mailto:tanadol.l@kkumail.com">Email</a>
-          <span class="sep">/</span>
-          <span class="location-text">Khon Kaen, Thailand</span>
-          <span class="sep">/</span>
-          <a href="https://github.com/tanadol-l" target="_blank" rel="noopener noreferrer">Github</a>
-        </div>
+    <div class="meta-bar">
+      <ul class="contact font-mono">
+        <li><a :href="`mailto:${profile.email}`">Email</a></li>
+        <li>{{ profile.location }}</li>
+        <li><a :href="profile.links.github" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a :href="profile.links.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      </ul>
 
-        <a href="/resumes/dummy.pdf" download class="btn-download">
-          <svg class="download-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M12.6666 10V12.6667C12.6666 13.0348 12.3681 13.3333 12 13.3333H4.00002C3.63191 13.3333 3.33335 13.0348 3.33335 12.6667V10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <path d="M8 2.66666V10.6667" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <path d="M11.3334 7.99999L8.00002 11.3333L4.66669 7.99999" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Download PDF</span>
+      <div class="actions">
+        <a :href="profile.resumePdf" target="_blank" rel="noopener" class="btn btn-ghost">
+          <i class="pi pi-external-link"></i> Open
+        </a>
+        <a :href="profile.resumePdf" download="Tanadol_Langputeh_CV.pdf" class="btn btn-primary">
+          <i class="pi pi-download"></i> Download
         </a>
       </div>
     </div>
 
-    <div class="pdf-container">
-      <div class="pdf-frame">
-        <iframe
-          src="/resumes/dummy.pdf#toolbar=0"
-          class="pdf-iframe"
-        ></iframe>
-      </div>
+    <div class="pdf-frame">
+      <object :data="`${profile.resumePdf}#toolbar=0&view=FitH`" type="application/pdf" class="pdf">
+        <div class="fallback">
+          <p>Your browser can't preview PDFs inline.</p>
+          <a :href="profile.resumePdf" target="_blank" rel="noopener" class="btn btn-primary">Open the PDF</a>
+        </div>
+      </object>
     </div>
-
   </div>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Monsieur+La+Doulaise&display=swap');
-
-.resume-wrapper {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #252422;
-  padding: 1rem 1.5rem 6rem;
-  max-width: 950px;
-  margin: 0 auto;
-  -webkit-font-smoothing: antialiased;
-}
-
-.font-mono {
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.monsieur-la-doulaise-regular {
-  font-family: "Monsieur La Doulaise", cursive;
-  font-weight: 400;
-  font-style: normal;
-  text-transform: none;
-}
-
-.resume-interface {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2.5rem;
-}
-
-.resume-header {
+.page-header {
   margin-bottom: 1rem;
 }
 
-.resume-title {
-  font-size: clamp(3.5rem, 9vw, 5.5rem);
-  font-weight: 400;
-  color: #eb5e28; 
-  margin: 0;
-}
-
-.resume-subtitle {
-  color: #475569;
-  font-size: 0.88rem;
-  margin-top: 0.3rem;
-}
-
-.resume-meta-bar {
+.meta-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(37, 36, 34, 0.05);
+  padding: 1rem 0 2rem;
+  border-top: 1px solid var(--line);
 }
 
-.contact-links {
+.contact {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #64748b;
+  color: var(--muted);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  gap: 0.35rem 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.contact-links a {
-  color: #403d39;
-  text-decoration: none;
-  font-weight: 700;
-  transition: color 0.3s ease;
-}
-
-.contact-links a:hover {
-  color: #eb5e28; 
-}
-
-.location-text {
-  font-weight: 500;
-  color: #475569;
-}
-
-.sep {
-  margin: 0 0.75rem;
+/* separator lives on the item, so a wrapped line never starts with a stray "/" */
+.contact li:not(:last-child)::after {
+  content: '/';
+  margin: 0 0.7rem;
   opacity: 0.3;
 }
 
-.btn-download {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.25rem;
-  background: #252422; 
-  border: 1px solid #252422;
-  border-radius: 6px;
-  color: #fffcf2; 
-  text-decoration: none;
-  font-size: 0.72rem;
+.contact a {
+  color: var(--ink-2);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-download:hover {
-  background: #eb5e28; 
-  border-color: #eb5e28;
-  color: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(235, 94, 40, 0.15);
+.contact a:hover {
+  color: var(--accent);
 }
 
-.download-icon {
-  transition: transform 0.3s ease;
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
 }
 
-.btn-download:hover .download-icon {
-  transform: translateY(1px);
-}
-
-.pdf-container {
-  width: 100%;
+.actions .btn {
+  white-space: nowrap;
 }
 
 .pdf-frame {
-  width: 100%;
-  background: #ffffff;
+  background: #fff;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 40px 80px -20px rgba(37, 36, 34, 0.04); 
-  border: 1px solid rgba(37, 36, 34, 0.05);
+  border: 1px solid var(--line);
+  box-shadow: 0 40px 80px -20px var(--shadow);
 }
 
-.pdf-iframe {
+.pdf {
   width: 100%;
-  height: 1050px;
+  height: 1100px;
   display: block;
-  background: white;
-  border: none;
+}
+
+.fallback {
+  padding: 4rem 1.5rem;
+  text-align: center;
+  color: var(--ink-3);
 }
 
 @media (max-width: 768px) {
-  .resume-meta-bar {
+  .meta-bar {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1.25rem;
-    padding-bottom: 0.5rem;
+    align-items: stretch;
   }
-  
-  .btn-download {
-    width: 100%;
+  .actions .btn {
+    flex: 1;
     justify-content: center;
   }
-
-  .pdf-iframe {
-    height: 600px;
+  .pdf {
+    height: 75vh;
   }
 }
 </style>

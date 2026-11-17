@@ -1,443 +1,486 @@
-<template>
-  <div class="home-container">
-    
-    <section class="hero-section">
-      <div class="hero-content">
-        <h3 class="hero-title monsieur-la-doulaise-regular">Welcome to my work</h3>
-        <div class="hero-subtitle-wrapper">
-          <p class="hero-subtitle font-mono">Cybersecurity / Mathematics / Philosophy / Economics / Literature / Sketch drawing</p>
-        </div>
-        
-        <p class="hero-desc">
-          Hi, I'm <strong class="highlight">Tanadol Langputeh</strong>, a 20 years old computer science student driven by cryptographic design and analytical logic.
-        </p>
-      </div>
-    </section>
-
-    <section class="featured-section">
-      <div class="section-header">
-        <h2 class="section-label font-mono">Explore by Discipline</h2>
-        <div class="header-line"></div>
-      </div>
-
-      <div class="featured-grid">
-        <div class="featured-card">
-          <div class="card-content">
-            <div class="title-with-line">
-              <h3>lorem</h3>
-              <span class="line-effect"></span>
-            </div>
-            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nam rem dolores quidem corrupti nemo aliquid doloremque molestiae nisi pariatur! Maiores.</p>
-          </div>
-          <i class="pi pi-arrow-up-right card-icon"></i>
-        </div>
-
-        <router-link to="/project" class="featured-card">
-          <div class="card-content">
-            <div class="title-with-line">
-              <h3>lorem</h3>
-              <span class="line-effect"></span>
-            </div>
-            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repellendus, vero.</p>
-          </div>
-          <i class="pi pi-arrow-up-right card-icon"></i>
-        </router-link>
-      </div>
-    </section>
-
-    <section class="bookshelf-section">
-      <div class="section-header">
-        <h2 class="section-label font-mono">/ What I read?</h2>
-        <div class="header-line"></div>
-      </div>
-      
-      <div 
-        class="marquee-container"
-        ref="scrollContainerLeft"
-        :class="{ 'is-grabbing': isDownLeft }"
-        @mousedown="e => handleMouseDown(e, 'left')"
-        @mouseleave="handleMouseLeave('left')"
-        @mouseup="handleMouseUp('left')"
-        @mousemove="e => handleMouseMove(e, 'left')"
-        @mouseenter="handleMouseEnter('left')"
-      >
-        <div class="marquee-track">
-          <div class="book-group" v-for="g in 3" :key="'group-left-'+g">
-            <div v-for="book in bookshelfRow1" :key="book.title + '-left-' + g" class="book-item">
-              <div class="book-cover-wrap">
-                <img :src="book.coverArt" :alt="book.title" class="book-cover" loading="lazy" />
-              </div>
-              <div class="book-details">
-                <span :class="['book-status', book.status.toLowerCase(), 'font-mono']">
-                  Status: {{ book.status }}
-                </span>
-                <div class="book-info">
-                  <span class="book-title">{{ book.title }}</span>
-                  <span class="book-author">by {{ book.author }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div 
-        class="marquee-container container-right-row"
-        ref="scrollContainerRight"
-        :class="{ 'is-grabbing': isDownRight }"
-        @mousedown="e => handleMouseDown(e, 'right')"
-        @mouseleave="handleMouseLeave('right')"
-        @mouseup="handleMouseUp('right')"
-        @mousemove="e => handleMouseMove(e, 'right')"
-        @mouseenter="handleMouseEnter('right')"
-      >
-        <div class="marquee-track">
-          <div class="book-group" v-for="g in 3" :key="'group-right-'+g">
-            <div v-for="book in bookshelfRow2" :key="book.title + '-right-' + g" class="book-item">
-              <div class="book-cover-wrap">
-                <img :src="book.coverArt" :alt="book.title" class="book-cover" loading="lazy" />
-              </div>
-              <div class="book-details">
-                <span :class="['book-status', book.status.toLowerCase(), 'font-mono']">
-                  Status: {{ book.status }}
-                </span>
-                <div class="book-info">
-                  <span class="book-title">{{ book.title }}</span>
-                  <span class="book-author">by {{ book.author }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </div>
-</template>
-
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { profile, projects, awards } from '../data/profile'
+import { books } from '../data/books'
+import BentoGrid from './BentoGrid.vue'
+import TerminalLine from './TerminalLine.vue'
+import { articles } from '../data/articles'
+import ArticleCover from './ArticleCover.vue'
 
-const bookshelf = ref([
-  { title: "Animal Farm", author: "george orwell", status: "Completed", coverArt: "https://api.chulabook.com/images/pid-231893.JPG" },
-  { title: "1984", author: "George Orwell", status: "Reading", coverArt: "https://cdn-local.mebmarket.com/meb/server1/59412/Thumbnail/book_detail_large.gif?8" },
-  { title: "Thus Spoke Zarathustra", author: "Friedrich Nietzsche", status: "Reading", coverArt: "https://bci.kinokuniya.com/jsp/images/book-img/97801/97801404/9780140441185.JPG" },
-  { title: "The Castle ปราสาท", author: "Franz Kafka", status: "Reading", coverArt: "https://storage.naiin.com/system/application/bookstore/resource/product/202110/534420/1000243867_front_XXL.jpg?v=1725896686" },
-  { title: "The Idiot", author: "Fyodor Dostoevsky", status: "Reading", coverArt: "https://static.wixstatic.com/media/936e61_fb65cc3c8955443c8c3fe7d95d6d7f32~mv2.jpg/v1/fit/w_500,h_500,q_90/file.jpg" },
-  { title: "Pride and Prejudice", author: "Jane Austen", status: "Reading", coverArt: "https://bci.kinokuniya.com/jsp/images/book-img/97801/97801414/9780141439518.JPG" },
-  { title: "A Treatise of Human Nature", author: "David Hume", status: "Reading", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZmyllv6iEaoxAQrSKXKQqYt-4786fy3ZoZQ&s" },
-  { title: "Meditations", author: "Marcus Aurelius", status: "Reading", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQacn_nf34wrzKXEUzNard-mr1qg03XCza5Aw&s" },
-  { title: "White nights", author: "Fyodor Dostoevsky", status: "Reading", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdSLqB0TEGTmSwd-J84GCxoTo8d0IZ7D4Grw&s" },
-  { title: "สามก๊ก", author: "ล่อกวนตง", status: "Reading", coverArt: "https://api.chulabook.com/images/pid-65373.jpg" },
-  { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", status: "Reading", coverArt: "https://m.media-amazon.com/images/I/71wvKXWfcML._UF1000,1000_QL80_.jpg" },
-  { title: "Hidden Potential", author: "Adam Grant", status: "Completed", coverArt: "https://www.asiabooks.com/media/catalog/product/cache/a5ac216be58c0cbce1cb04612ece96dc/9/7/9780753560051.jpg" },
-  { title: "Same as Ever", author: "Morgan Housel", status: "Reading", coverArt: "https://www.asiabooks.com/media/catalog/product/cache/a5ac216be58c0cbce1cb04612ece96dc/9/7/9780593716229.jpg" },
-  { title: "Economics The User's Guide", author: "Ha-Joon Chang", status: "Reading", coverArt: "https://bookscape.co/wp-content/uploads/2023/06/economics-users-guide_%E0%B8%9B%E0%B8%81%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2.avif" },
-  { title: "The Book of Five Rings", author: "Miyamoto Musashi", status: "Reading", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIG9P3Pnn4lC-hWu-h5hU0BBXnIuAzI_bXyQ&s" },
-  { title: "mahabharata สงครามมหาภารตะ", author: "Vyasa", status: "Reading", coverArt: "https://storage.naiin.com/system/application/bookstore/resource/product/202411/628273/6000100469_front_XXL.jpg" },
-  { title: "The Intelligent Investor", author: "Benjamin Graham", status: "Reading", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVC6Cj9xYtCEB2g-y8Y_b5sa2r9TwsuXMKSqSQzsnL-rJ0F-14HPz8L3b7ctN3bqLd31_V0bU0aypDGLYcEZXtOBgpuA045jpRiy8kiQ&s=10" },
-  { title: "รักเร้นลับของ คาลิล ยิบราน", author: "Kahlil Gibran", status: "Completed", coverArt: "https://storage.naiin.com/system/application/bookstore/resource/product/202310/593910/1000266220_front_XXL.jpg?v=1725921920" },
-  { title: "Mastery", author: "Robert Greene", status: "Reading", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-C4LTnaK_eZ8D4QL5yI5I7zNlFZh4ChKPE55z9L6vQ5At59uFBt-P1CKZCnYCLDZfOqxj7AgdGPOgQmUlCbGK3sX-JACfWC_V4j1Saco&s" },
-  { title: "Alien Thinking", author: "Bouquet and Others", status: "Reading", coverArt: "https://storage.naiin.com/system/application/bookstore/resource/product/202406/614276/1000272617_front_XXL.jpg?v=1725910618" },
-  { title: "Tortilla Flat", author: "John Steinbeck", status: "Reading", coverArt: "https://inwfile.com/s-di/o7fo6g.png" },
-  { title: "The Analects", author: "Confucius", status: "Reading", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrnRMyBT81mHV8oS1qtLXc7AhaDXV1lIJIjg&s" },
-  { title: "The Dream of a Ridiculous Man", author: "Fyodor Dostoevsky", status: "Completed", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsbt7nUg6rlrnsHPX6WQU-5FELi4GYM3hE6g&s" },
-  { title: "A Mind For Numbers", author: "Barbara Oakley", status: "Completed", coverArt: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvP2UXn2aGl3QkXWY69_EqwKxwF_gaBrkhrQ&s" }
-])
+const featured = projects.filter((p) => p.featured)
+const topAwards = awards.filter((a) => /Place|Winner|Runner-up/.test(a.result)).slice(0, 5)
 
-// แบ่งหนังสืออกเป็นสองแถว (คี่-คู่) เพื่อกระจายความหลากหลาย
-const bookshelfRow1 = computed(() => bookshelf.value.filter((_, i) => i % 2 === 0))
-const bookshelfRow2 = computed(() => bookshelf.value.filter((_, i) => i % 2 !== 0))
+// ---------- bookshelf ----------
+const bookshelfRow1 = computed(() => books.filter((_, i) => i % 2 === 0))
+const bookshelfRow2 = computed(() => books.filter((_, i) => i % 2 !== 0))
 
-// การจัดการสำหรับการเลื่อนสองฝั่งแยกชิ้น
-const scrollContainerLeft = ref(null)
-const scrollContainerRight = ref(null)
+type Row = 'left' | 'right'
+const containers = {
+  left: ref<HTMLElement | null>(null),
+  right: ref<HTMLElement | null>(null),
+}
+const setContainer = (row: Row) => (el: unknown) => {
+  containers[row].value = el as HTMLElement | null
+}
 
-const isDownLeft = ref(false)
-const isDownRight = ref(false)
+const state = {
+  left: { down: ref(false), hover: false, startX: 0, startScroll: 0 },
+  right: { down: ref(false), hover: false, startX: 0, startScroll: 0 },
+}
+const isDownLeft = state.left.down
+const isDownRight = state.right.down
 
-const isHoveredLeft = ref(false)
-const isHoveredRight = ref(false)
-
-const startXLeft = ref(0)
-const startXRight = ref(0)
-
-const scrollLeftValue = ref(0)
-const scrollRightValue = ref(0)
-
-let animationId = null
+const reduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+let animationId = 0
 
 const autoScroll = () => {
-  // แถวที่ 1: เลื่อนไปทางซ้าย (เพิ่มค่า scrollLeft)
-  if (scrollContainerLeft.value && !isDownLeft.value && !isHoveredLeft.value) {
-    scrollContainerLeft.value.scrollLeft += 0.8
-    const maxScroll = scrollContainerLeft.value.scrollWidth / 3
-    if (scrollContainerLeft.value.scrollLeft >= maxScroll * 2) {
-      scrollContainerLeft.value.scrollLeft -= maxScroll
-    }
+  const l = containers.left.value
+  if (l && !state.left.down.value && !state.left.hover) {
+    l.scrollLeft += 0.8
+    const third = l.scrollWidth / 3
+    if (l.scrollLeft >= third * 2) l.scrollLeft -= third
   }
-
-  // แถวที่ 2: เลื่อนไปทางขวา (ลดค่า scrollLeft)
-  if (scrollContainerRight.value && !isDownRight.value && !isHoveredRight.value) {
-    scrollContainerRight.value.scrollLeft -= 0.8
-    const maxScroll = scrollContainerRight.value.scrollWidth / 3
-    
-    // ถ้าฝั่งขวาเลื่อนย้อนจนเกือบถึงซ้ายสุด ให้ดีดสลับกลับไปลูปด้านขวาต่อ
-    if (scrollContainerRight.value.scrollLeft <= maxScroll) {
-      scrollContainerRight.value.scrollLeft += maxScroll
-    }
+  const r = containers.right.value
+  if (r && !state.right.down.value && !state.right.hover) {
+    r.scrollLeft -= 0.8
+    const third = r.scrollWidth / 3
+    if (r.scrollLeft <= third) r.scrollLeft += third
   }
   animationId = requestAnimationFrame(autoScroll)
 }
 
 onMounted(() => {
-  // ตั้งค่าเริ่มต้นให้แถวขวาไปสแตนด์บายรอที่ตรงกลางรางลูปพาสแรก
-  if (scrollContainerRight.value) {
-    const maxScroll = scrollContainerRight.value.scrollWidth / 3
-    scrollContainerRight.value.scrollLeft = maxScroll * 1.5
-  }
-  animationId = requestAnimationFrame(autoScroll)
+  const r = containers.right.value
+  if (r) r.scrollLeft = (r.scrollWidth / 3) * 1.5
+  if (!reduceMotion) animationId = requestAnimationFrame(autoScroll)
 })
+onUnmounted(() => cancelAnimationFrame(animationId))
 
-onUnmounted(() => {
-  cancelAnimationFrame(animationId)
-})
+const onDown = (e: MouseEvent, row: Row) => {
+  const el = containers[row].value
+  if (!el) return
+  state[row].down.value = true
+  state[row].startX = e.pageX - el.offsetLeft
+  state[row].startScroll = el.scrollLeft
+}
+const onMove = (e: MouseEvent, row: Row) => {
+  const el = containers[row].value
+  if (!el || !state[row].down.value) return
+  e.preventDefault()
+  el.scrollLeft = state[row].startScroll - (e.pageX - el.offsetLeft - state[row].startX) * 1.5
+}
+const onUp = (row: Row) => (state[row].down.value = false)
+const onEnter = (row: Row) => (state[row].hover = true)
+const onLeave = (row: Row) => {
+  state[row].down.value = false
+  state[row].hover = false
+}
 
-// Unified Drag Handlers
-const handleMouseDown = (e, row) => {
-  if (row === 'left') {
-    isDownLeft.value = true
-    startXLeft.value = e.pageX - scrollContainerLeft.value.offsetLeft
-    scrollLeftValue.value = scrollContainerLeft.value.scrollLeft
-  } else {
-    isDownRight.value = true
-    startXRight.value = e.pageX - scrollContainerRight.value.offsetLeft
-    scrollRightValue.value = scrollContainerRight.value.scrollLeft
+// ---------- contact ----------
+const copied = ref(false)
+let copyTimer = 0
+const copyEmail = async () => {
+  try {
+    await navigator.clipboard.writeText(profile.email)
+  } catch {
+    window.location.href = `mailto:${profile.email}`
+    return
   }
+  copied.value = true
+  clearTimeout(copyTimer)
+  copyTimer = window.setTimeout(() => (copied.value = false), 2000)
 }
 
-const handleMouseLeave = (row) => {
-  if (row === 'left') {
-    isDownLeft.value = false
-    isHoveredLeft.value = false
-  } else {
-    isDownRight.value = false
-    isHoveredRight.value = false
-  }
-}
-
-const handleMouseEnter = (row) => {
-  if (row === 'left') isHoveredLeft.value = true
-  else isHoveredRight.value = true
-}
-
-const handleMouseUp = (row) => {
-  if (row === 'left') isDownLeft.value = false
-  else isDownRight.value = false
-}
-
-const handleMouseMove = (e, row) => {
-  if (row === 'left') {
-    if (!isDownLeft.value) return
-    e.preventDefault()
-    const x = e.pageX - scrollContainerLeft.value.offsetLeft
-    const walk = (x - startXLeft.value) * 1.5
-    scrollContainerLeft.value.scrollLeft = scrollLeftValue.value - walk
-  } else {
-    if (!isDownRight.value) return
-    e.preventDefault()
-    const x = e.pageX - scrollContainerRight.value.offsetLeft
-    const walk = (x - startXRight.value) * 1.5
-    scrollContainerRight.value.scrollLeft = scrollRightValue.value - walk
-  }
-}
+const hideBroken = (e: Event) => ((e.target as HTMLImageElement).style.visibility = 'hidden')
 </script>
 
+<template>
+  <div class="page home">
+    <!-- Hero -->
+    <section class="hero">
+      <h1 class="hero-title intro" style="--i: 0">Welcome to my work</h1>
+      <p class="hero-tags font-mono intro" style="--i: 1">Offensive Security / CTF / Red Team Tooling / Mathematics / Philosophy</p>
+      <div class="intro terminal-wrap" style="--i: 2">
+        <TerminalLine
+          :lines="[
+            'whoami  # offensive security student @ KKU',
+            './pentest --scope web,api,network',
+            'go build ./AustenC2/agent',
+            'ctf --play --since 2022',
+            'cat essays/philosophy.md',
+          ]"
+        />
+      </div>
+      <p class="hero-desc intro" style="--i: 3">
+        Hi, I'm <strong>{{ profile.name }}</strong> — a third-year Cybersecurity student at Khon Kaen University
+        focused on web/API and network pentesting, and building the tools red teams use.
+      </p>
+      <div class="hero-actions intro" style="--i: 4">
+        <router-link to="/resume" class="btn btn-primary" data-magnetic><i class="pi pi-file"></i> Resume</router-link>
+        <router-link to="/project" class="btn btn-ghost" data-magnetic>Projects</router-link>
+        <a :href="profile.links.github" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" aria-label="GitHub" data-magnetic>
+          <i class="pi pi-github"></i> <span class="hide-sm">GitHub</span>
+        </a>
+      </div>
+
+    </section>
+
+    <BentoGrid class="intro" style="--i: 5" />
+
+    <!-- Featured projects -->
+    <section v-reveal class="block">
+      <div class="section-head"><h2 class="section-label">/ Featured Projects</h2></div>
+      <div class="featured-grid">
+        <a
+          v-for="p in featured"
+          :key="p.name"
+          :href="p.demo || p.github"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card featured-card"
+        >
+          <span class="kind font-mono">{{ p.kind }}</span>
+          <h3>{{ p.name }}</h3>
+          <p>{{ p.desc }}</p>
+          <div class="chips"><span v-for="s in p.stack" :key="s" class="chip">{{ s }}</span></div>
+          <i class="pi pi-arrow-up-right card-icon"></i>
+        </a>
+      </div>
+      <router-link to="/project" class="more-link font-mono">All projects →</router-link>
+    </section>
+
+    <!-- Awards -->
+    <section v-reveal class="block">
+      <div class="section-head"><h2 class="section-label">/ Recent Awards</h2></div>
+      <ul class="award-list">
+        <li v-for="a in topAwards" :key="a.title" class="award">
+          <span class="award-year font-mono">{{ a.year }}</span>
+          <span class="award-title">
+            {{ a.title }}
+            <a v-if="a.press" :href="a.press.url" target="_blank" rel="noopener noreferrer" class="press font-mono" :title="`News: ${a.press.source}`">news <i class="pi pi-arrow-up-right"></i></a>
+          </span>
+          <span class="award-result">{{ a.result }}</span>
+        </li>
+      </ul>
+      <router-link to="/about" class="more-link font-mono">Full list →</router-link>
+    </section>
+
+    <!-- Writing -->
+    <section v-reveal class="block">
+      <div class="section-head"><h2 class="section-label">/ Latest Writing</h2></div>
+      <div class="writing-grid">
+        <router-link v-for="a in articles" :key="a.slug" :to="`/article/${a.slug}`" class="card writing">
+          <ArticleCover :slug="a.slug" compact class="w-cover" />
+          <span class="kind font-mono">{{ a.course }}</span>
+          <h3 lang="th">{{ a.title }}</h3>
+          <p>{{ a.enTitle }}</p>
+          <i class="pi pi-arrow-up-right card-icon"></i>
+        </router-link>
+      </div>
+    </section>
+
+    <!-- Bookshelf -->
+    <section v-reveal class="block bookshelf">
+      <div class="section-head"><h2 class="section-label">/ What I read</h2></div>
+      <router-link to="/books" class="more-link font-mono shelf-link">Open the bookshelf →</router-link>
+
+      <div
+        v-for="row in (['left', 'right'] as const)"
+        :key="row"
+        class="marquee-container"
+        :ref="setContainer(row)"
+        :class="{ 'is-grabbing': row === 'left' ? isDownLeft : isDownRight }"
+        @mousedown="(e) => onDown(e, row)"
+        @mousemove="(e) => onMove(e, row)"
+        @mouseup="onUp(row)"
+        @mouseenter="onEnter(row)"
+        @mouseleave="onLeave(row)"
+        @touchstart.passive="onEnter(row)"
+        @touchend="onLeave(row)"
+      >
+        <div class="marquee-track">
+          <div v-for="g in 3" :key="row + g" class="book-group" :aria-hidden="g > 1">
+            <div v-for="book in row === 'left' ? bookshelfRow1 : bookshelfRow2" :key="book.title + g" class="book-item">
+              <div class="book-cover-wrap">
+                <img
+                  :src="book.coverArt"
+                  :alt="book.title"
+                  class="book-cover"
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                  @error="hideBroken"
+                />
+              </div>
+              <div class="book-details">
+                <span :class="['book-status', book.status.toLowerCase(), 'font-mono']">{{ book.status }}</span>
+                <span class="book-title">{{ book.title }}</span>
+                <span class="book-author">by {{ book.author }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section v-reveal class="card cta">
+      <p class="section-label">/ Get in touch</p>
+      <h2 class="cta-title">Have a security role, project, or CTF team in mind?</h2>
+      <p class="cta-desc">Always happy to talk pentesting, tooling, or competitions.</p>
+      <div class="cta-actions">
+        <a :href="`mailto:${profile.email}`" class="btn btn-primary" data-magnetic><i class="pi pi-envelope"></i> Email me</a>
+        <button class="btn btn-ghost copy-btn" aria-live="polite" data-magnetic @click="copyEmail">
+          <i :class="['pi', copied ? 'pi-check' : 'pi-copy']"></i>
+          {{ copied ? 'Copied!' : profile.email }}
+        </button>
+      </div>
+    </section>
+  </div>
+</template>
+
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Monsieur+La+Doulaise&display=swap');
-
-.home-container {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 1rem 2rem 5rem 2rem;
-  color: #252422; 
-  -webkit-font-smoothing: antialiased;
-}
-
-.font-mono {
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.monsieur-la-doulaise-regular {
-  font-family: "Monsieur La Doulaise", cursive;
-  font-weight: 400;
-  font-style: normal;
-  text-transform: none;
-}
-
-.hero-section {
+.hero {
   text-align: center;
   margin-bottom: 5rem;
 }
 
 .hero-title {
-  font-size: clamp(4rem, 11vw, 6.5rem);
+  font-family: var(--font-script);
   font-weight: 400;
-  color: #eb5e28; 
+  font-size: clamp(4rem, 11vw, 6.5rem);
+  color: var(--accent);
   margin: 0;
-  line-height: 0.9;
+  line-height: 0.95;
 }
 
-.hero-subtitle-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  margin: 1.5rem 0 2rem;
-}
-
-.hero-subtitle {
-  color: #64748b; 
-  font-size: 0.75rem;
+.hero-tags {
+  color: var(--muted);
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   font-weight: 600;
+  margin: 1.5rem 0 1.75rem;
+  line-height: 1.8;
+}
+
+.terminal-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 1.75rem;
 }
 
 .hero-desc {
-  color: #403d39;
-  max-width: 580px;
+  color: var(--ink-2);
+  max-width: 600px;
   margin: 0 auto;
   line-height: 1.75;
   font-size: 1.05rem;
 }
 
-.highlight {
-  color: #252422;
-  font-weight: 700;
+.hero-desc strong {
+  color: var(--ink);
 }
 
-.section-header {
+.hero-actions {
   display: flex;
-  align-items: center;
-  gap: 2rem;
-  margin-bottom: 2.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
 }
 
-.section-label {
-  color: #64748b;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.25em;
-  white-space: nowrap;
-  font-weight: 600;
+.block {
+  margin-bottom: 4.5rem;
 }
 
-.header-line {
-  height: 1px;
-  background: rgba(37, 36, 34, 0.08); 
-  width: 100%;
-}
-
+/* exactly three featured projects: one row of three, or a single column — never 2 + 1 */
 .featured-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 720px) {
+  .featured-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .featured-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.6); 
-  border: 1px solid rgba(37, 36, 34, 0.06);
-  border-radius: 14px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
-.featured-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(37, 36, 34, 0.15); 
-  background: #ffffff;
-  box-shadow: 0 15px 35px rgba(37, 36, 34, 0.04);
-}
-
-.card-content {
-  padding: 2.5rem;
-}
-
-.title-with-line {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 0.85rem;
+.kind {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .featured-card h3 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  color: #252422; 
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
 }
 
-.line-effect {
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 1.5px;
-  background-color: #eb5e28;
-  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.featured-card:hover .line-effect {
-  width: 100%; 
-}
-
 .featured-card p {
-  color: #575551;
+  color: var(--ink-3);
   font-size: 0.88rem;
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 0.5rem;
+  flex: 1;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .card-icon {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
-  color: #64748b;
-  opacity: 0.3;
-  font-size: 0.85rem;
+  top: 1.5rem;
+  right: 1.5rem;
+  color: var(--muted);
+  opacity: 0.35;
+  font-size: 0.8rem;
   transition: all 0.3s ease;
 }
 
 .featured-card:hover .card-icon {
-  color: #eb5e28; 
+  color: var(--accent);
   opacity: 1;
-  transform: translate(2px, -2px); 
+  transform: translate(2px, -2px);
 }
 
-.bookshelf-section {
-  width: 100%;
-  margin-top: 2rem;
+.writing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.writing {
+  position: relative;
+  padding: 0.75rem 0.75rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* เพิ่มช่องว่างระหว่างแถวที่หนึ่งและแถวที่สอง */
 }
 
+.writing .card-icon {
+  display: none;
+}
+
+.w-cover {
+  margin-bottom: 1.1rem;
+}
+
+.writing > :not(.w-cover) {
+  padding: 0 0.85rem;
+}
+
+.writing h3 {
+  font-family: var(--font-serif-th);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin: 0.5rem 0 0.4rem;
+}
+
+.writing p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--ink-3);
+}
+
+.writing:hover .card-icon {
+  color: var(--accent);
+  opacity: 1;
+  transform: translate(2px, -2px);
+}
+
+.more-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.more-link:hover {
+  color: var(--accent);
+}
+
+.award-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.award {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.award-year {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.press {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--muted);
+  vertical-align: middle;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.press .pi {
+  font-size: 0.5rem;
+}
+
+.press:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.award-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.award-result {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: right;
+}
+
+/* bookshelf */
 .marquee-container {
-  position: relative;
   width: 100%;
-  padding: 1.5rem 0;
+  padding: 1.25rem 0;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
   cursor: grab;
   user-select: none;
   scrollbar-width: none;
-  -ms-overflow-style: none;
   mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
 }
@@ -456,34 +499,32 @@ const handleMouseMove = (e, row) => {
 }
 
 .book-group {
-  display: flex;
-  gap: 3.5rem; 
-  padding-right: 3.5rem;
   display: inline-flex;
+  gap: 3rem;
+  padding-right: 3rem;
 }
 
 .book-item {
   display: flex;
   align-items: center;
-  gap: 1.5rem; 
-  width: 340px;
-  background: transparent;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  gap: 1.25rem;
+  width: 320px;
+  transition: transform 0.4s var(--ease);
 }
 
 .book-item:hover {
-  transform: translateY(-6px); 
+  transform: translateY(-6px);
 }
 
 .book-cover-wrap {
-  width: 85px; 
-  height: 125px; 
+  width: 80px;
+  height: 118px;
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(37, 36, 34, 0.18);
-  background: #eae9e4;
-  border: 1px solid rgba(37, 36, 34, 0.08);
+  box-shadow: 0 10px 25px var(--shadow);
+  background: var(--placeholder);
+  border: 1px solid var(--line);
 }
 
 .book-cover {
@@ -496,51 +537,102 @@ const handleMouseMove = (e, row) => {
 .book-details {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  justify-content: center;
-}
-
-.book-status {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-}
-
-.book-status.reading {
-  color: #eb5e28;
-}
-
-.book-status.completed {
-  color: #64748b;
-}
-
-.book-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.book-title {
-  font-size: 1.15rem;
-  font-weight: 800;   
-  color: #252422;
-  line-height: 1.3;
+  gap: 0.3rem;
   white-space: normal;
 }
 
-.book-author {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #64748b;
+.book-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
 }
 
-@media (max-width: 768px) {
-  .hero-section { margin-bottom: 3.5rem; }
-  .section-header { margin-bottom: 2rem; }
-  .card-content { padding: 2rem; }
-  .featured-grid { margin-bottom: 3.5rem; }
-  .book-item { width: 300px; }
-  .book-cover-wrap { width: 75px; height: 110px; }
-  .bookshelf-section { gap: 0.5rem; }
+.book-status.reading {
+  color: var(--accent);
+}
+
+.book-status.completed {
+  color: var(--muted);
+}
+
+.book-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.book-author {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.bookshelf {
+  margin-bottom: 3rem;
+}
+
+.cta {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.cta .section-label {
+  margin-bottom: 1rem;
+}
+
+.cta-title {
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 auto 0.75rem;
+  max-width: 560px;
+  line-height: 1.25;
+}
+
+.cta-desc {
+  color: var(--ink-3);
+  margin: 0 0 1.75rem;
+}
+
+.cta-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.copy-btn {
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .hide-sm {
+    display: none;
+  }
+  .hero-actions {
+    flex-wrap: nowrap;
+  }
+  .hero-actions .btn {
+    padding: 0.7rem 1rem;
+  }
+  .hero {
+    margin-bottom: 3rem;
+  }
+  .award {
+    grid-template-columns: 3rem 1fr;
+  }
+  .award-result {
+    grid-column: 2;
+    text-align: left;
+  }
+  .book-item {
+    width: 280px;
+  }
 }
 </style>

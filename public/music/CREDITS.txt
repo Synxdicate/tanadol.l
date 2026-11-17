@@ -1,0 +1,16 @@
+Music on tanadol-l.vercel.app
+=============================
+
+Pieces are performed live in the browser from MIDI files, on a sampled piano.
+
+MIDI files: The Mutopia Project (https://www.mutopiaproject.org)
+  - J.S. Bach, Prelude in C major BWV 846 ............ Public Domain
+  - J.S. Bach, Goldberg Variations: Aria BWV 988 ..... CC BY-SA 3.0
+  - C. Debussy, Clair de Lune ........................ Public Domain
+  - F. Chopin, Nocturne Op. 9 No. 2 .................. CC BY-SA 3.0
+  - L. van Beethoven, Für Elise WoO 59 ............... Public Domain
+  - C. Debussy, Première Arabesque ................... Public Domain
+
+Piano samples (public/piano/): Salamander Grand Piano, Yamaha C5,
+  by Alexander Holm, CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/),
+  via https://github.com/Tonejs/audio
