@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { projects } from '../data/profile'
+import ProjectArt from './ProjectArt.vue'
 
 const featured = projects.filter((p) => p.featured)
 const others = projects.filter((p) => !p.featured)
@@ -19,6 +20,7 @@ const others = projects.filter((p) => !p.featured)
           <h2>{{ p.name }}</h2>
           <p class="desc">{{ p.desc }}</p>
         </div>
+        <ProjectArt :name="p.name" class="art" />
         <ul v-if="p.highlights" class="highlights">
           <li v-for="h in p.highlights" :key="h">{{ h }}</li>
         </ul>
@@ -66,7 +68,11 @@ const others = projects.filter((p) => !p.featured)
 
 .feature {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    'head art'
+    'list art'
+    'foot foot';
   gap: 1.5rem 2.5rem;
   padding: 2rem;
 }
@@ -106,13 +112,27 @@ const others = projects.filter((p) => !p.featured)
   margin: 0;
 }
 
+.feature-head {
+  grid-area: head;
+}
+
+.art {
+  grid-area: art;
+  align-self: center;
+}
+
+.feature-foot {
+  grid-area: foot;
+}
+
 .highlights {
+  grid-area: list;
   margin: 0;
   padding-left: 1.1rem;
   font-size: 0.86rem;
   color: var(--ink-3);
   line-height: 1.7;
-  align-self: center;
+  align-self: start;
 }
 
 .highlights li::marker {
@@ -166,6 +186,10 @@ const others = projects.filter((p) => !p.featured)
   flex-direction: column;
 }
 
+.small .kind {
+  padding-right: 1.5rem; /* clear of the corner arrow */
+}
+
 .small .desc {
   font-size: 0.85rem;
   flex: 1;
@@ -189,6 +213,11 @@ const others = projects.filter((p) => !p.featured)
 
 @media (max-width: 768px) {
   .feature {
+    grid-template-areas:
+      'head'
+      'art'
+      'list'
+      'foot';
     grid-template-columns: 1fr;
     padding: 1.5rem;
   }

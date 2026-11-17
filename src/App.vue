@@ -350,10 +350,14 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
   color: var(--accent);
 }
 
-/* keep the footer icons clear of the floating vinyl button */
+/* keep the footer icons clear of the floating vinyl button and cat house:
+   icons go first, on their own row, and the footer gets room at the bottom */
 @media (max-width: 1100px) {
   .site-footer {
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 

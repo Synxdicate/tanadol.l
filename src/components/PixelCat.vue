@@ -23,6 +23,7 @@ const hearts = ref<{ id: number; x: number }[]>([])
 const sleeping = ref(false)
 const atHome = ref(false) // cat is inside the house
 const goingHome = ref(false)
+const moving = ref(false) // while walking the cat is click-through, so it never blocks a link
 let heartId = 0
 
 // ---------- drawing ----------
@@ -101,6 +102,7 @@ const step = (now: number) => {
   const dist = Math.hypot(dx, dy)
   const stopAt = goingHome.value ? 4 : STOP
 
+  moving.value = dist > stopAt
   if (dist > stopAt) {
     state = 'walk'
     sleeping.value = false
@@ -255,7 +257,7 @@ onUnmounted(() => {
 
     <!-- the cat -->
     <div v-show="!atHome" ref="el" class="cat">
-      <button class="body" aria-label="Pet the cat" @click="pet">
+      <button :class="['body', { moving }]" aria-label="Pet the cat" @click="pet">
         <canvas ref="canvas" :width="CAT_W" :height="CAT_H"></canvas>
       </button>
       <span v-if="sleeping" class="zzz font-mono" aria-hidden="true"><i>z</i><i>z</i><i>Z</i></span>
@@ -325,6 +327,10 @@ onUnmounted(() => {
   top: 0;
   left: 0;
   will-change: transform;
+}
+
+.body.moving {
+  pointer-events: none;
 }
 
 .body {

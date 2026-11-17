@@ -92,6 +92,14 @@ const copyEmail = async () => {
 }
 
 const hideBroken = (e: Event) => ((e.target as HTMLImageElement).style.visibility = 'hidden')
+
+// cloth-bound look behind every cover, visible when the image fails to load
+const CLOTH = ['#2f4a3a', '#2b3a55', '#5a2a2e', '#7a5a22', '#3d3d4a', '#4a2f45', '#1f4b4f']
+const clothFor = (title: string) => {
+  let h = 0
+  for (const ch of title) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  return CLOTH[h % CLOTH.length]
+}
 </script>
 
 <template>
@@ -201,7 +209,8 @@ const hideBroken = (e: Event) => ((e.target as HTMLImageElement).style.visibilit
         <div class="marquee-track">
           <div v-for="g in 3" :key="row + g" class="book-group" :aria-hidden="g > 1">
             <div v-for="book in row === 'left' ? bookshelfRow1 : bookshelfRow2" :key="book.title + g" class="book-item">
-              <div class="book-cover-wrap">
+              <div class="book-cover-wrap" :style="{ '--cloth': clothFor(book.title) }">
+                <span class="cloth" aria-hidden="true">{{ book.title }}</span>
                 <img
                   :src="book.coverArt"
                   :alt="book.title"
@@ -517,6 +526,7 @@ const hideBroken = (e: Event) => ((e.target as HTMLImageElement).style.visibilit
 }
 
 .book-cover-wrap {
+  position: relative;
   width: 80px;
   height: 118px;
   flex-shrink: 0;
@@ -527,7 +537,26 @@ const hideBroken = (e: Event) => ((e.target as HTMLImageElement).style.visibilit
   border: 1px solid var(--line);
 }
 
+.cloth {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.4rem;
+  text-align: center;
+  white-space: normal;
+  font-family: var(--font-serif-th);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #f3e6c8;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 2px, transparent 2px 4px),
+    var(--cloth);
+}
+
 .book-cover {
+  position: relative;
   width: 100%;
   height: 100%;
   object-fit: cover;

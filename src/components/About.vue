@@ -63,7 +63,7 @@ const connect = [
         </a>
         <a :href="profile.links.htb" target="_blank" rel="noopener noreferrer" class="card htb">
           <span class="p-eyebrow font-mono">Hack The Box</span>
-          <span class="p-title">Machines, challenges &amp; pro labs</span>
+          <span class="p-title">Hands-on machines and challenges</span>
           <span class="p-link font-mono">View profile <i class="pi pi-arrow-up-right"></i></span>
         </a>
       </div>

@@ -7,6 +7,12 @@ import { books } from '../data/books'
 import CountUp from './CountUp.vue'
 
 const reading = books.find((b) => b.status === 'Reading') ?? books[0]
+
+// data for the stat tiles, all derived from the awards list
+const YEARS = [2022, 2023, 2024, 2025, 2026]
+const ctfYears = new Set(awards.filter((a) => a.category === 'Cybersecurity').map((a) => a.year))
+const awardsByYear = YEARS.map((year) => ({ year, n: awards.filter((a) => a.year === year).length }))
+const maxPerYear = Math.max(...awardsByYear.map((b) => b.n), 1)
 const latest = awards[0]
 
 // live local time in Khon Kaen (ICT, UTC+7)
@@ -49,8 +55,35 @@ const status = computed(() => {
       </div>
     </article>
 
-    <article v-for="s in stats" :key="s.label" class="card tile stat">
+    <article v-for="(s, i) in stats" :key="s.label" class="card tile stat">
       <span class="stat-value"><CountUp :value="s.value" /></span>
+
+      <!-- 0: years of CTF — timeline, filled dots = years with a CTF result -->
+      <div v-if="i === 0" class="viz timeline" aria-hidden="true">
+        <span v-for="y in YEARS" :key="y" :class="['tl-dot', { on: ctfYears.has(y) }]" :title="String(y)"></span>
+        <span class="tl-cap font-mono"><span>{{ YEARS[0] }}</span><span>now</span></span>
+      </div>
+
+      <!-- 1: awards — bars per year from the awards list -->
+      <div v-else-if="i === 1" class="viz bars" aria-hidden="true">
+        <div v-for="b in awardsByYear" :key="b.year" class="bar-col">
+          <span class="bar" :style="{ height: `${(b.n / maxPerYear) * 100}%` }"></span>
+          <span class="bar-year font-mono">{{ String(b.year).slice(2) }}</span>
+        </div>
+      </div>
+
+      <!-- 2: runner-up — a pixel podium with 2nd place lit -->
+      <svg v-else class="viz podium" viewBox="0 0 30 14" shape-rendering="crispEdges" aria-hidden="true">
+        <rect x="0" y="6" width="9" height="8" class="p2" />
+        <rect x="10" y="2" width="10" height="12" class="p1" />
+        <rect x="21" y="9" width="9" height="5" class="p3" />
+        <rect x="3" y="8" width="3" height="1" class="num" />
+        <rect x="5" y="9" width="1" height="1" class="num" />
+        <rect x="3" y="10" width="3" height="1" class="num" />
+        <rect x="3" y="11" width="1" height="1" class="num" />
+        <rect x="3" y="12" width="3" height="1" class="num" />
+      </svg>
+
       <span class="stat-label font-mono">{{ s.label }}</span>
     </article>
 
@@ -70,21 +103,27 @@ const status = computed(() => {
       </span>
     </article>
 
-    <article class="card tile reading">
+    <router-link to="/books" class="card tile reading">
       <img :src="reading.coverArt" :alt="reading.title" referrerpolicy="no-referrer" loading="lazy" />
       <div>
         <span class="eyebrow font-mono">Now reading</span>
         <span class="r-title">{{ reading.title }}</span>
         <span class="r-author">{{ reading.author }}</span>
+        <span class="r-more font-mono">{{ books.length }} books on the shelf →</span>
       </div>
-    </article>
+    </router-link>
 
-    <router-link to="/about" class="card tile award">
+    <article class="card tile award">
       <span class="eyebrow font-mono">Latest award · {{ latest.year }}</span>
       <span class="a-result">{{ latest.result }}</span>
       <span class="a-title">{{ latest.title }}</span>
-      <i class="pi pi-arrow-up-right corner"></i>
-    </router-link>
+      <div class="a-links font-mono">
+        <router-link to="/about">All {{ awards.length }} awards →</router-link>
+        <a v-if="latest.press" :href="latest.press.url" target="_blank" rel="noopener noreferrer">
+          News · {{ latest.press.source }} <i class="pi pi-arrow-up-right"></i>
+        </a>
+      </div>
+    </article>
   </section>
 </template>
 
@@ -159,6 +198,110 @@ const status = computed(() => {
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1;
+}
+
+.viz {
+  margin: auto 0 0.6rem;
+}
+
+/* timeline */
+.timeline {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: calc(0.2rem + 4px);
+  height: 1px;
+  background: var(--line);
+}
+
+.tl-dot {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  background: var(--bg);
+}
+
+.tl-dot.on {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.tl-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  color: var(--muted);
+}
+
+.timeline {
+  margin-bottom: 1.6rem;
+}
+
+/* bars */
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 44px;
+}
+
+.bar-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+}
+
+.bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.bar-year {
+  font-size: 0.55rem;
+  color: var(--muted);
+  line-height: 1;
+}
+
+/* podium */
+.podium {
+  width: 66px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.podium .p1,
+.podium .p3 {
+  fill: color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.podium .p2 {
+  fill: var(--accent);
+}
+
+.podium .num {
+  fill: var(--bg);
 }
 
 .stat-label {
@@ -241,6 +384,30 @@ const status = computed(() => {
 .r-author {
   font-size: 0.82rem;
   color: var(--muted);
+}
+
+.r-more {
+  margin-top: 0.5rem;
+  font-size: 0.66rem;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+
+.reading:hover .r-more {
+  color: var(--accent);
+}
+
+.a-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-top: 0.7rem;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.a-links a:hover {
+  color: var(--accent);
 }
 
 /* award: 2 × 1 */

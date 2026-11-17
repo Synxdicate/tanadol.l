@@ -238,6 +238,9 @@ onUnmounted(() => {
 .turntable {
   --level: 0;
   --size: 64px;
+  /* the wrapper is as wide as the (hidden) pill: never let it swallow clicks meant
+     for the page underneath — only the record and the open pill are interactive */
+  pointer-events: none;
   position: fixed;
   right: calc(20px + env(safe-area-inset-right, 0px));
   bottom: calc(20px + env(safe-area-inset-bottom, 0px));
@@ -270,6 +273,15 @@ onUnmounted(() => {
   opacity: 1;
   transform: none;
   pointer-events: auto;
+}
+
+.pill {
+  visibility: hidden;
+  transition-property: opacity, transform, visibility;
+}
+
+.turntable.open .pill {
+  visibility: visible;
 }
 
 .meta {
@@ -373,6 +385,7 @@ onUnmounted(() => {
 
 /* ---------- record ---------- */
 .deck {
+  pointer-events: auto;
   position: relative;
   width: var(--size);
   height: var(--size);
