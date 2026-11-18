@@ -88,7 +88,7 @@ const formatDate = (iso: string) =>
 
 .filter-btn.active,
 .filter-btn:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .filter-btn.active {
@@ -122,7 +122,7 @@ const formatDate = (iso: string) =>
 }
 
 .cat {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -180,7 +180,7 @@ const formatDate = (iso: string) =>
 
 .row:hover .title,
 .row:hover .read {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .row:hover .read .pi {
@@ -199,7 +199,7 @@ const formatDate = (iso: string) =>
 }
 
 .blog-note a:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .list-enter-active,

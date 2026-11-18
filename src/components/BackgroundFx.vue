@@ -36,7 +36,7 @@ const resize = () => {
   canvas.value.width = w * dpr
   canvas.value.height = h * dpr
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  if (reduce) draw()
+  draw() // repaint at the new size even when the loop is idle
 }
 
 const draw = () => {
@@ -52,7 +52,7 @@ const draw = () => {
       const dy = y - lensY
       const d2 = dx * dx + dy * dy
       if (d2 < r2) continue // drawn in the lens pass
-      ctx.globalAlpha = 0.11
+      ctx.globalAlpha = 0.085
       ctx.fillRect(x - 0.75, y - 0.75, 1.5, 1.5)
     }
   }
@@ -85,7 +85,11 @@ const draw = () => {
   ctx.globalAlpha = 1
 }
 
+// The loop only runs while something is moving (scroll easing or the pointer lens);
+// once everything has settled it stops, and any scroll / pointer / resize restarts it.
+let lastProgress = ''
 const loop = () => {
+  raf = 0
   smoothScroll += (scroll - smoothScroll) * 0.12
   lensX += (mx - lensX) * 0.18
   lensY += (my - lensY) * 0.18
@@ -93,27 +97,44 @@ const loop = () => {
   draw()
   // drifting glow follows page progress (handled in CSS via a custom property)
   const max = Math.max(1, document.documentElement.scrollHeight - h)
-  document.documentElement.style.setProperty('--scroll-progress', (smoothScroll / max).toFixed(4))
-  raf = requestAnimationFrame(loop)
+  const progress = (smoothScroll / max).toFixed(4)
+  if (progress !== lastProgress) {
+    document.documentElement.style.setProperty('--scroll-progress', progress)
+    lastProgress = progress
+  }
+  const settled =
+    Math.abs(scroll - smoothScroll) < 0.3 && (mx < -999 || (Math.abs(mx - lensX) < 0.3 && Math.abs(my - lensY) < 0.3))
+  if (!settled) raf = requestAnimationFrame(loop)
+}
+const kick = () => {
+  if (!raf && !reduce && !document.hidden) raf = requestAnimationFrame(loop)
 }
 
-const onScroll = () => (scroll = window.scrollY)
+const onScroll = () => {
+  scroll = window.scrollY
+  kick()
+}
 const onMove = (e: PointerEvent) => {
   if (e.pointerType !== 'mouse') return
   mx = e.clientX
   my = e.clientY
+  kick()
 }
-const onLeave = () => (mx = my = -9999)
+const onLeave = () => {
+  mx = my = -9999
+  kick()
+}
 const onVisibility = () => {
   cancelAnimationFrame(raf)
-  if (!document.hidden && !reduce) raf = requestAnimationFrame(loop)
+  raf = 0
+  kick()
 }
 
 let themeObserver: MutationObserver | null = null
 let schemeQuery: MediaQueryList | null = null
 const onTheme = () => {
   readColors()
-  if (reduce) draw()
+  draw() // the loop may be idle: repaint once in the new colours
 }
 
 onMounted(() => {
@@ -150,8 +171,18 @@ onUnmounted(() => {
 
 <template>
   <div class="bg-fx no-print" aria-hidden="true">
-    <div class="glow"></div>
+    <!-- two soft lights: warm accent + a cooler counter-tone, drifting slowly and with scroll -->
+    <div class="glow warm"></div>
+    <div class="glow cool"></div>
     <canvas ref="canvas"></canvas>
+    <!-- fine film grain so flat colour areas don't look digital -->
+    <svg class="grain" xmlns="http://www.w3.org/2000/svg">
+      <filter id="bg-grain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
+        <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#bg-grain)" />
+    </svg>
   </div>
 </template>
 
@@ -162,6 +193,8 @@ onUnmounted(() => {
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
+  /* soft vignette toward the edges */
+  background: radial-gradient(120% 90% at 50% 30%, transparent 55%, color-mix(in srgb, var(--ink) 4%, transparent));
 }
 
 canvas {
@@ -170,20 +203,64 @@ canvas {
   width: 100%;
   height: 100%;
   /* fade the grid out toward the edges so it never competes with content */
-  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 35%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 35%, transparent 100%);
 }
 
-/* a slow accent glow that travels from top-right to bottom-left as you scroll */
 .glow {
   position: absolute;
-  width: 60vmax;
-  height: 60vmax;
-  left: calc(70% - var(--scroll-progress, 0) * 60%);
-  top: calc(-20% + var(--scroll-progress, 0) * 70%);
-  translate: -50% -50%;
   border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 13%, transparent) 0%, transparent 65%);
-  filter: blur(20px);
+  translate: -50% -50%;
+  filter: blur(30px);
+  will-change: transform;
+}
+
+/* warm light: travels top-right → bottom-left as you scroll, and breathes slowly */
+.glow.warm {
+  width: 62vmax;
+  height: 62vmax;
+  left: calc(72% - var(--scroll-progress, 0) * 55%);
+  top: calc(-18% + var(--scroll-progress, 0) * 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 15%, transparent) 0%, transparent 62%);
+  animation: drift-a 26s ease-in-out infinite alternate;
+}
+
+/* cooler counter-tone on the opposite side, moving the other way */
+.glow.cool {
+  width: 52vmax;
+  height: 52vmax;
+  left: calc(12% + var(--scroll-progress, 0) * 40%);
+  top: calc(85% - var(--scroll-progress, 0) * 55%);
+  background: radial-gradient(circle, color-mix(in srgb, #6f8fa3 14%, transparent) 0%, transparent 62%);
+  animation: drift-b 32s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a {
+  to {
+    transform: translate(-6vmax, 5vmax) scale(1.12);
+  }
+}
+
+@keyframes drift-b {
+  to {
+    transform: translate(7vmax, -4vmax) scale(0.9);
+  }
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* per-theme values live in style.css (--grain-*) */
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  filter: var(--grain-filter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    animation: none;
+  }
 }
 </style>

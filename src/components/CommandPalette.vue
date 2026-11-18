@@ -330,7 +330,7 @@ kbd {
 
 .row.active .pi:first-child,
 .enter {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .label {

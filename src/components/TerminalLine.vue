@@ -45,7 +45,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <p class="terminal font-mono" :aria-label="lines.join('; ')">
+  <p class="terminal font-mono">
+    <span class="sr-only">Terminal: {{ lines.join('; ') }}</span>
     <span class="prompt" aria-hidden="true">{{ prompt }}</span>
     <span class="cmd" aria-hidden="true">{{ text }}</span><span class="caret" aria-hidden="true"></span>
   </p>
@@ -69,7 +70,7 @@ onUnmounted(() => {
 }
 
 .prompt {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 

@@ -24,7 +24,7 @@ const connect = [
     <!-- Bio -->
     <section class="bio">
       <div class="photo-wrap">
-        <img src="../assets/a.webp" :alt="profile.name" class="photo-img" width="373" height="372" />
+        <img v-fade-img src="../assets/a.webp" :alt="profile.name" class="photo-img" width="373" height="372" />
         <div class="accent-line"></div>
       </div>
       <div class="bio-text">
@@ -215,7 +215,7 @@ const connect = [
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   margin-bottom: 0.75rem;
 }
@@ -301,7 +301,7 @@ const connect = [
   font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -320,7 +320,7 @@ const connect = [
 }
 
 .htb:hover .p-link {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 @media (max-width: 640px) {
@@ -352,7 +352,7 @@ const connect = [
 
 .filter-btn:hover,
 .filter-btn.active {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .filter-btn.active {
@@ -399,7 +399,7 @@ const connect = [
 }
 
 .press:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: var(--accent);
 }
 
@@ -411,7 +411,7 @@ const connect = [
 .award-result {
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-text);
   text-align: right;
 }
 
@@ -450,7 +450,7 @@ const connect = [
 
 .entry-sub {
   font-size: 0.82rem;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
@@ -489,10 +489,15 @@ const connect = [
 }
 
 .cert-badge {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   flex-shrink: 0;
   object-fit: contain;
+  /* badges are transparent PNGs drawn for light backgrounds: give them a light plate */
+  padding: 5px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px var(--line);
 }
 
 .cert-body {
@@ -512,7 +517,7 @@ const connect = [
   margin-top: 0.6rem;
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .link-row {
@@ -528,7 +533,7 @@ const connect = [
 }
 
 .link-row:hover > .pi:first-child {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .link-inner {
@@ -552,7 +557,7 @@ const connect = [
 
 .arrow-icon {
   font-size: 0.75rem;
-  color: var(--accent);
+  color: var(--accent-text);
   opacity: 0;
   transition: opacity 0.2s;
 }

@@ -61,6 +61,7 @@ const play = async () => {
   ensureGraph()
   clearTimeout(suspendTimer)
   playing.value = true
+  wake()
   writePref('on')
   try {
     await ctx!.resume()
@@ -77,7 +78,8 @@ const play = async () => {
     failed.value = false
     fadeTo(muted.value ? 0 : VOLUME, 1.2)
     performer!.play()
-  } catch {
+  } catch (err) {
+    console.warn('[music] could not start:', err)
     loading.value = false
     failed.value = true
     playing.value = false
@@ -168,7 +170,15 @@ const frame = () => {
   if (disc.value) disc.value.style.transform = `rotate(${angle}deg)`
   root.value?.style.setProperty('--level', level.toFixed(3))
   root.value?.style.setProperty('--progress', progress.value.toFixed(4))
+  // idle and fully wound down: stop the loop until playback starts again
+  if (!playing.value && Math.abs(speed) < 0.01) {
+    raf = 0
+    return
+  }
   raf = requestAnimationFrame(frame)
+}
+const wake = () => {
+  if (!raf) raf = requestAnimationFrame(frame)
 }
 
 // requests from the command palette
@@ -204,7 +214,7 @@ onUnmounted(() => {
 <template>
   <div
     ref="root"
-    :class="['turntable no-print', { playing, open: hover || focused }]"
+    :class="['turntable no-print', { playing, open: hover || focused || failed }]"
     @mouseenter="hover = true"
     @mouseleave="hover = false"
     @focusin="focused = true"
@@ -216,7 +226,7 @@ onUnmounted(() => {
       <div class="meta">
         <span class="title" :title="`${piece.title} — ${piece.composer} · MIDI: ${piece.license}`">{{ piece.title }}</span>
         <span class="artist font-mono">
-          {{ failed ? "couldn't load the piano" : loading ? 'tuning the piano…' : piece.composer }}
+          {{ failed ? "couldn't load the piano · tap the record to retry" : loading ? 'tuning the piano…' : piece.composer }}
         </span>
         <span class="bar" aria-hidden="true"><span></span></span>
       </div>
@@ -250,6 +260,7 @@ onUnmounted(() => {
 
 <style scoped>
 .turntable {
+  view-transition-name: turntable;
   --level: 0;
   --size: 64px;
   /* the wrapper is as wide as the (hidden) pill: never let it swallow clicks meant
@@ -394,7 +405,7 @@ onUnmounted(() => {
 
 .mini:hover {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- record ---------- */

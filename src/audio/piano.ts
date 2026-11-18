@@ -30,20 +30,48 @@ export class GrandPiano {
     this.out.connect(reverb).connect(wet).connect(destination)
   }
 
-  /** Fetch and decode all samples once (≈2 MB). */
+  /**
+   * Fetch and decode the samples (≈2 MB). Each file is retried a few times; a handful of
+   * missing samples is fine (notes borrow the nearest one), so this only rejects when
+   * almost nothing loaded. A failed attempt is not cached: calling load() again retries
+   * just the samples that are still missing.
+   */
   load(base = '/piano/') {
-    this.loading ??= Promise.all(
-      SAMPLE_NAMES.map(async (name) => {
-        const res = await fetch(`${base}${name}.mp3`)
-        if (!res.ok) throw new Error(`missing sample ${name}`)
-        this.samples.set(sampleMidi(name), await this.ctx.decodeAudioData(await res.arrayBuffer()))
-      }),
-    ).then(() => undefined)
+    if (this.ready) return Promise.resolve()
+    this.loading ??= (async () => {
+      const missing = SAMPLE_NAMES.filter((n) => !this.samples.has(sampleMidi(n)))
+      const failures: string[] = []
+      await Promise.all(
+        missing.map(async (name) => {
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const res = await fetch(`${base}${name}.mp3`)
+              if (!res.ok) throw new Error(`HTTP ${res.status}`)
+              this.samples.set(sampleMidi(name), await this.ctx.decodeAudioData(await res.arrayBuffer()))
+              return
+            } catch (err) {
+              if (attempt === 3) failures.push(`${name}: ${(err as Error).message}`)
+              else await new Promise((r) => setTimeout(r, 400 * attempt))
+            }
+          }
+        }),
+      )
+      if (failures.length) console.warn(`[piano] ${failures.length} sample(s) failed to load`, failures)
+      if (!this.playable) throw new Error(`piano samples unavailable (${failures.slice(0, 3).join('; ')})`)
+    })().finally(() => {
+      this.loading = null // never cache a failure
+    })
     return this.loading
   }
 
+  /** every sample is in */
   get ready() {
     return this.samples.size === SAMPLE_NAMES.length
+  }
+
+  /** enough samples to cover the keyboard reasonably (each one is re-pitched to its neighbours) */
+  get playable() {
+    return this.samples.size >= Math.ceil(SAMPLE_NAMES.length * 0.6)
   }
 
   /** Play one note: nearest sample, re-pitched; release fades like a damper. */

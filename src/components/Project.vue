@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { projects } from '../data/profile'
+import { computed, ref } from 'vue'
+import { PROJECT_AREAS, projects, type ProjectArea } from '../data/profile'
 import ProjectArt from './ProjectArt.vue'
 
-const featured = projects.filter((p) => p.featured)
-const others = projects.filter((p) => !p.featured)
+type AreaFilter = 'All' | ProjectArea
+const area = ref<AreaFilter>('All')
+const inArea = (a: AreaFilter) => (a === 'All' ? projects : projects.filter((p) => p.area === a))
+const featured = computed(() => inArea(area.value).filter((p) => p.featured))
+const others = computed(() => inArea(area.value).filter((p) => !p.featured))
 </script>
 
 <template>
@@ -13,7 +17,20 @@ const others = projects.filter((p) => !p.featured)
       <p class="page-subtitle">Security tooling, infrastructure, and things I've built along the way.</p>
     </header>
 
-    <section class="featured">
+    <div class="chips-bar" role="tablist" aria-label="Filter projects">
+      <button
+        v-for="a in (['All', ...PROJECT_AREAS] as AreaFilter[])"
+        :key="a"
+        role="tab"
+        :aria-selected="area === a"
+        :class="['chip-btn', { active: area === a }]"
+        @click="area = a"
+      >
+        {{ a }} <span class="count font-mono">{{ inArea(a).length }}</span>
+      </button>
+    </div>
+
+    <section v-if="featured.length" class="featured">
       <article v-for="(p, i) in featured" :key="p.name" v-reveal="i * 80" class="card feature">
         <div class="feature-head">
           <span class="kind font-mono">{{ p.kind }}</span>
@@ -38,7 +55,9 @@ const others = projects.filter((p) => !p.featured)
       </article>
     </section>
 
-    <div class="section-head"><h2 class="section-label">/ More</h2></div>
+    <div v-if="others.length" class="section-head">
+      <h2 class="section-label">{{ featured.length ? '/ More' : `/ ${area}` }}</h2>
+    </div>
     <section v-reveal class="grid">
       <a
         v-for="p in others"
@@ -59,6 +78,41 @@ const others = projects.filter((p) => !p.featured)
 </template>
 
 <style scoped>
+.chips-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: -0.75rem 0 2rem;
+}
+
+.chip-btn {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.chip-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.chip-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.count {
+  font-size: 0.68rem;
+  margin-left: 0.15rem;
+}
+
 .featured {
   display: flex;
   flex-direction: column;
@@ -86,7 +140,7 @@ const others = projects.filter((p) => !p.featured)
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -136,7 +190,7 @@ const others = projects.filter((p) => !p.featured)
 }
 
 .highlights li::marker {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .feature-foot {
@@ -170,7 +224,7 @@ const others = projects.filter((p) => !p.featured)
 }
 
 .link:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .grid {
@@ -207,7 +261,7 @@ const others = projects.filter((p) => !p.featured)
 }
 
 .small:hover .corner {
-  color: var(--accent);
+  color: var(--accent-text);
   opacity: 1;
 }
 

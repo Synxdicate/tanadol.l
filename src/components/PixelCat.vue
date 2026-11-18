@@ -23,7 +23,6 @@ const hearts = ref<{ id: number; x: number }[]>([])
 const sleeping = ref(false)
 const atHome = ref(false) // cat is inside the house
 const goingHome = ref(false)
-const moving = ref(false) // while walking the cat is click-through, so it never blocks a link
 let heartId = 0
 
 // ---------- drawing ----------
@@ -75,22 +74,39 @@ const setTarget = (px: number, py: number) => {
 const onMove = (e: PointerEvent) => {
   if (e.pointerType !== 'mouse' || goingHome.value || atHome.value) return
   setTarget(e.clientX - 26, e.clientY + 44) // sit just below-left of the pointer
+  wakeLoop()
 }
 
 const wander = () => {
   if (!goingHome.value && !atHome.value) setTarget(120 + Math.random() * (window.innerWidth - 320), groundY())
+  wakeLoop()
   wanderTimer = window.setTimeout(wander, 7000 + Math.random() * 9000)
 }
 
+let placed = ''
 const place = () => {
-  if (el.value) el.value.style.transform = `translate3d(${Math.round(x - (CAT_W * SCALE) / 2)}px, ${Math.round(y - CAT_H * SCALE)}px, 0)`
+  const t = `translate3d(${Math.round(x - (CAT_W * SCALE) / 2)}px, ${Math.round(y - CAT_H * SCALE)}px, 0)`
+  if (t === placed || !el.value) return // only touch the DOM when the cat actually moved
+  el.value.style.transform = t
+  placed = t
+}
+
+// the loop sleeps while the cat does (or while it's at home); these wake it
+const wakeLoop = () => {
+  if (raf) return
+  last = performance.now()
+  raf = requestAnimationFrame(step)
 }
 
 const step = (now: number) => {
   const dt = Math.min(0.05, (now - last) / 1000 || 0)
   last = now
   raf = requestAnimationFrame(step)
-  if (atHome.value) return
+  if (atHome.value) {
+    cancelAnimationFrame(raf)
+    raf = 0
+    return
+  }
 
   if (goingHome.value) {
     const d = door()
@@ -102,7 +118,6 @@ const step = (now: number) => {
   const dist = Math.hypot(dx, dy)
   const stopAt = goingHome.value ? 4 : STOP
 
-  moving.value = dist > stopAt
   if (dist > stopAt) {
     state = 'walk'
     sleeping.value = false
@@ -160,9 +175,14 @@ const step = (now: number) => {
     lastPose = key
   }
   place()
+  if (state === 'sleep' && Math.hypot(tx - x, ty - y) <= STOP) {
+    cancelAnimationFrame(raf)
+    raf = 0
+  }
 }
 
 const pet = () => {
+  wakeLoop()
   idle = 0
   groomClock = 0
   if (state === 'sleep') {
@@ -183,6 +203,7 @@ const writePref = (v: 'home' | 'out') => {
 }
 
 const toggleHome = () => {
+  wakeLoop()
   if (atHome.value || goingHome.value) {
     // come out of the door and stretch the legs
     goingHome.value = false
@@ -200,11 +221,25 @@ const toggleHome = () => {
   }
 }
 
-const onResize = () => setTarget(tx, ty)
+const onResize = () => {
+  setTarget(tx, ty)
+  wakeLoop()
+}
 const onCatRequest = () => toggleHome()
+
+// The cat is click-through, so it never blocks a link or button underneath it.
+// A click that lands on the cat over empty space counts as petting.
+const onPageClick = (e: MouseEvent) => {
+  if (atHome.value || !el.value) return
+  const r = el.value.getBoundingClientRect()
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return
+  if ((e.target as Element | null)?.closest('a, button, input, textarea, select, label, [role="tab"], .spine')) return
+  pet()
+}
 
 onMounted(() => {
   window.addEventListener('site:toggle-cat', onCatRequest)
+  window.addEventListener('click', onPageClick)
   paint(houseCanvas.value, HOUSE, HOUSE_PALETTE)
   let pref: string | null = null
   try {
@@ -236,6 +271,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('site:toggle-cat', onCatRequest)
+  window.removeEventListener('click', onPageClick)
   cancelAnimationFrame(raf)
   clearTimeout(wanderTimer)
   window.removeEventListener('pointermove', onMove)
@@ -260,7 +296,7 @@ onUnmounted(() => {
 
     <!-- the cat -->
     <div v-show="!atHome" ref="el" class="cat">
-      <button :class="['body', { moving }]" aria-label="Pet the cat" @click="pet">
+      <button class="body" aria-label="Pet the cat" tabindex="-1" @click="pet">
         <canvas ref="canvas" :width="CAT_W" :height="CAT_H"></canvas>
       </button>
       <span v-if="sleeping" class="zzz font-mono" aria-hidden="true"><i>z</i><i>z</i><i>Z</i></span>
@@ -271,6 +307,7 @@ onUnmounted(() => {
 
 <style scoped>
 .cat-layer {
+  view-transition-name: cat-layer;
   position: fixed;
   inset: 0;
   z-index: 110;
@@ -332,16 +369,14 @@ onUnmounted(() => {
   will-change: transform;
 }
 
-.body.moving {
-  pointer-events: none;
-}
+
 
 .body {
   display: block;
   padding: 0;
   border: none;
   background: none;
-  pointer-events: auto;
+  pointer-events: none; /* click-through: see onPageClick */
   filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.12));
 }
 
@@ -402,7 +437,7 @@ onUnmounted(() => {
   top: 0;
   width: 2px;
   height: 2px;
-  color: var(--accent);
+  color: var(--accent-text);
   box-shadow:
     2px 0, 4px 0, 8px 0, 10px 0,
     0 2px, 2px 2px, 4px 2px, 6px 2px, 8px 2px, 10px 2px, 12px 2px,

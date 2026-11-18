@@ -6,13 +6,18 @@
   --muted: #64748b;
   --accent: #eb5e28;
   --accent-soft: rgba(235, 94, 40, 0.07);
+  /* accent for small text: darker so it meets WCAG AA (4.5:1) on the cream surfaces */
+  --accent-text: #b5461a;
   --line: rgba(37, 36, 34, 0.08);
-  --card: rgba(255, 255, 255, 0.6);
+  --card: #fffdf7; /* opaque surfaces: the dot grid must never show through content */
   --card-hover: #ffffff;
   --header-bg: rgba(255, 252, 242, 0.94);
   --placeholder: #eae9e4;
   --subtle: #475569;
   --shadow: rgba(37, 36, 34, 0.06);
+  --grain-opacity: 0.07;
+  --grain-blend: multiply;
+  --grain-filter: none;
   color-scheme: light;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -44,13 +49,17 @@
     --muted: #8f97a6;
     --accent: #f07240;
     --accent-soft: rgba(240, 114, 64, 0.12);
+    --accent-text: #f3814f;
     --line: rgba(242, 239, 230, 0.09);
-    --card: rgba(255, 255, 255, 0.03);
-    --card-hover: rgba(255, 255, 255, 0.06);
+    --card: #1e1c1a;
+    --card-hover: #252320;
     --header-bg: rgba(22, 21, 19, 0.93);
     --placeholder: #2a2825;
     --subtle: #a3abb8;
     --shadow: rgba(0, 0, 0, 0.35);
+    --grain-opacity: 0.08;
+    --grain-blend: screen;
+    --grain-filter: invert(1);
     color-scheme: dark;
   }
 }
@@ -63,13 +72,17 @@
   --muted: #8f97a6;
   --accent: #f07240;
   --accent-soft: rgba(240, 114, 64, 0.12);
+    --accent-text: #f3814f;
   --line: rgba(242, 239, 230, 0.09);
-  --card: rgba(255, 255, 255, 0.03);
-  --card-hover: rgba(255, 255, 255, 0.06);
+  --card: #1e1c1a;
+  --card-hover: #252320;
   --header-bg: rgba(22, 21, 19, 0.93);
   --placeholder: #2a2825;
   --subtle: #a3abb8;
   --shadow: rgba(0, 0, 0, 0.35);
+  --grain-opacity: 0.08;
+  --grain-blend: screen;
+  --grain-filter: invert(1);
   color-scheme: dark;
 }
 
@@ -141,6 +154,18 @@ html {
   color: var(--ink);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .font-mono {
   font-family: var(--font-mono);
 }
@@ -149,7 +174,7 @@ html {
   font-family: var(--font-script);
   font-weight: 400;
   font-size: clamp(3.5rem, 9vw, 5.5rem);
-  color: var(--accent);
+  color: var(--accent); /* large script text: 3:1 is enough */
   line-height: 1;
   margin: 0;
 }
@@ -197,7 +222,7 @@ html {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-text);
   background: var(--accent-soft);
   border: 1px solid rgba(235, 94, 40, 0.12);
   padding: 3px 8px;
@@ -255,7 +280,7 @@ a.card:hover,
 
 .btn-ghost:hover {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* staggered entrance for hero content: add class="intro" style="--i: n" */
@@ -275,6 +300,46 @@ a.card:hover,
     transform: none;
     filter: none;
   }
+}
+
+/* page change (View Transitions; see router/index.ts) */
+html.vt-route::view-transition-old(root) {
+  animation: vt-out 0.2s ease both;
+}
+
+html.vt-route::view-transition-new(root) {
+  animation: vt-in 0.42s var(--ease) both;
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* browsers without View Transitions: the new page simply fades up */
+@supports not (view-transition-name: none) {
+  .content-area > * {
+    animation: vt-in 0.4s var(--ease) both;
+  }
+}
+
+/* images fade in once loaded (v-fade-img) */
+img.fade-img {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+img.fade-img.loaded {
+  opacity: 1;
 }
 
 .reveal {

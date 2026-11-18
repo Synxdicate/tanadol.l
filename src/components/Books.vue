@@ -16,6 +16,8 @@ const status = ref<StatusFilter>('All')
 const catCount = (c: CatFilter) => (c === 'All' ? books.length : books.filter((b) => b.category === c).length)
 const statusCount = (s: StatusFilter) => (s === 'All' ? books.length : books.filter((b) => b.status === s).length)
 const finished = statusCount('Completed')
+const doneIn = (c: Category) => books.filter((b) => b.category === c && b.status === 'Completed').length
+const maxCat = Math.max(...CATEGORIES.map((c) => catCount(c)))
 
 const shelves = computed(() =>
   CATEGORIES.filter((c) => category.value === 'All' || c === category.value).map((name) => ({
@@ -182,6 +184,14 @@ const setCategory = (c: CatFilter) => {
       </p>
     </header>
 
+    <div class="top-row">
+    <svg width="0" height="0" class="defs" aria-hidden="true">
+      <filter id="rough-ink">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" />
+        <feDisplacementMap in="SourceGraphic" scale="2.4" />
+      </filter>
+    </svg>
+
     <!-- reading desk -->
     <section ref="desk" class="desk card" aria-live="polite">
       <div class="desk-nav">
@@ -191,7 +201,9 @@ const setCategory = (c: CatFilter) => {
       <Transition name="swap" mode="out-in">
         <div :key="selected.title" class="desk-inner">
           <div class="desk-cover" :style="{ '--cloth': spine(selected).color }">
-            <img
+            <span class="tape tl" aria-hidden="true"></span>
+            <span class="tape br" aria-hidden="true"></span>
+            <img v-fade-img
               v-if="!imgFailed.has(selected.title)"
               :src="selected.coverArt"
               alt=""
@@ -204,18 +216,62 @@ const setCategory = (c: CatFilter) => {
               <span class="f-author">{{ selected.author }}</span>
             </div>
           </div>
-          <div class="desk-text">
-            <span class="desk-no font-mono">No. {{ String(index).padStart(2, '0') }} / {{ books.length }} · {{ selected.category }}</span>
-            <h2 class="desk-title">{{ selected.title }}</h2>
-            <p class="desk-author">{{ selected.author }}</p>
-            <span :class="['status', selected.status.toLowerCase()]">
-              <i :class="['pi', selected.status === 'Reading' ? 'pi-bookmark-fill' : 'pi-check']"></i>
-              {{ selected.status === 'Reading' ? 'Currently reading' : 'Finished' }}
+          <!-- library checkout card -->
+          <div class="desk-text card-slip">
+            <div class="slip-head type">
+              <span>LIBRARY CARD</span>
+              <span>No. {{ String(index).padStart(2, '0') }} / {{ books.length }}</span>
+            </div>
+            <dl class="slip-rows">
+              <dt class="type">TITLE</dt>
+              <dd class="slip-title">{{ selected.title }}</dd>
+              <dt class="type">AUTHOR</dt>
+              <dd class="type">{{ selected.author }}</dd>
+              <dt class="type">SHELF</dt>
+              <dd class="type">{{ selected.category }}</dd>
+            </dl>
+            <span
+              :class="['stamp', selected.status.toLowerCase()]"
+              :aria-label="selected.status === 'Reading' ? 'Currently reading' : 'Finished'"
+              role="img"
+            >
+              {{ selected.status === 'Reading' ? 'READING' : 'FINISHED' }}
             </span>
           </div>
         </div>
       </Transition>
     </section>
+    <!-- reading stats -->
+    <aside class="stats card" aria-label="Reading stats">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 120 120" role="img" :aria-label="`${finished} of ${books.length} books finished`">
+          <circle cx="60" cy="60" r="50" class="track" />
+          <circle
+            cx="60"
+            cy="60"
+            r="50"
+            class="fill"
+            :stroke-dasharray="`${(finished / books.length) * 314.16} 314.16`"
+          />
+        </svg>
+        <div class="ring-label">
+          <strong>{{ finished }}<span>/{{ books.length }}</span></strong>
+          <span class="font-mono">finished</span>
+        </div>
+      </div>
+      <ul class="cat-bars">
+        <li v-for="c in CATEGORIES" :key="c">
+          <span class="cb-name">{{ c }}</span>
+          <span class="cb-track">
+            <span class="cb-all" :style="{ width: (catCount(c) / maxCat) * 100 + '%' }">
+              <span class="cb-done" :style="{ width: (doneIn(c) / catCount(c)) * 100 + '%' }"></span>
+            </span>
+          </span>
+          <span class="cb-n font-mono">{{ doneIn(c) }}/{{ catCount(c) }}</span>
+        </li>
+      </ul>
+    </aside>
+    </div>
 
     <!-- filters -->
     <div class="toolbar">
@@ -324,7 +380,7 @@ const setCategory = (c: CatFilter) => {
       <!-- floating hover preview -->
       <Transition name="peek">
         <div v-if="peek" class="peek" :style="{ left: peek.x + 'px', top: peek.y + 'px' }" aria-hidden="true">
-          <img
+          <img v-fade-img
             v-if="!imgFailed.has(peek.book.title)"
             :src="peek.book.coverArt"
             alt=""
@@ -343,11 +399,147 @@ const setCategory = (c: CatFilter) => {
 </template>
 
 <style scoped>
-/* ---------- reading desk ---------- */
+/* ---------- reading desk + stats ---------- */
+.top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stats {
+  padding: 1.25rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ring-wrap {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  align-self: center;
+}
+
+.ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring .track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 10;
+}
+
+.ring .fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.8s var(--ease);
+}
+
+.ring-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.ring-label strong {
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+}
+
+.ring-label strong span {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ring-label .font-mono {
+  font-size: 0.62rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cat-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.cat-bars li {
+  display: grid;
+  grid-template-columns: 108px 1fr 30px;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+}
+
+.cb-name {
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cb-track {
+  height: 6px;
+}
+
+.cb-all {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  overflow: hidden;
+}
+
+.cb-done {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.cb-n {
+  color: var(--muted);
+  text-align: right;
+  font-size: 0.65rem;
+}
+
+@media (max-width: 900px) {
+  .top-row {
+    grid-template-columns: 1fr;
+  }
+  .stats {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .cat-bars {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .desk {
   position: relative;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1.6rem 1.6rem 3.9rem;
   background:
     radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 55%),
     var(--card);
@@ -355,7 +547,7 @@ const setCategory = (c: CatFilter) => {
 
 .desk-nav {
   position: absolute;
-  top: 1rem;
+  bottom: 0.9rem;
   right: 1rem;
   z-index: 2;
   display: flex;
@@ -376,7 +568,7 @@ const setCategory = (c: CatFilter) => {
 }
 
 .nav-btn:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: var(--accent);
 }
 
@@ -392,9 +584,9 @@ const setCategory = (c: CatFilter) => {
 }
 
 .desk-cover {
+  position: relative;
   aspect-ratio: 2 / 3;
   border-radius: 3px 6px 6px 3px;
-  overflow: hidden;
   background: var(--cloth);
   box-shadow:
     0 18px 30px -12px rgba(0, 0, 0, 0.5),
@@ -402,11 +594,134 @@ const setCategory = (c: CatFilter) => {
   transform: rotate(-2deg);
 }
 
-.desk-cover img {
+.desk-cover img,
+.desk-cover .cloth-cover {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: inherit;
+}
+
+/* two strips of washi tape holding the cover down */
+.tape {
+  position: absolute;
+  z-index: 2;
+  width: 64px;
+  height: 20px;
+  background: color-mix(in srgb, #e9c46a 55%, transparent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  clip-path: polygon(0 8%, 6% 0, 12% 10%, 18% 0, 24% 8%, 100% 0, 100% 92%, 94% 100%, 88% 90%, 82% 100%, 76% 92%, 0 100%);
+}
+
+.tape.tl {
+  top: -8px;
+  left: -18px;
+  transform: rotate(-38deg);
+}
+
+.tape.br {
+  bottom: -6px;
+  right: -20px;
+  transform: rotate(-32deg);
+  background: color-mix(in srgb, #9cc1c9 55%, transparent);
+}
+
+.defs {
+  position: absolute;
+}
+
+/* ---------- library card ---------- */
+.card-slip {
+  position: relative;
+  padding: 1rem 1.2rem 1.4rem;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 27px, color-mix(in srgb, #4f7fb0 22%, transparent) 27px 28px),
+    #fbf6e6;
+  color: #2b2620;
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.05),
+    0 10px 24px -14px rgba(0, 0, 0, 0.35);
+  transform: rotate(0.6deg);
+}
+
+/* red margin line, like ruled index cards */
+.card-slip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 74px;
+  width: 1px;
+  background: rgba(200, 70, 60, 0.35);
+}
+
+.type {
+  font-family: 'Special Elite', var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.slip-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #6b5d4a;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.2rem;
+  border-bottom: 2px solid #2b2620;
+}
+
+.slip-rows {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  column-gap: 1rem;
+  margin: 0;
+  line-height: 28px;
+}
+
+.slip-rows dt {
+  font-size: 0.66rem;
+  color: #8a7a64;
+}
+
+.slip-rows dd {
+  margin: 0;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.slip-title {
+  font-family: var(--font-serif-th);
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem) !important;
+  font-weight: 700;
+  line-height: 1.35;
+  padding: 0.15rem 0;
+}
+
+/* rubber stamp with uneven ink */
+.stamp {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1rem;
+  padding: 0.25rem 0.7rem;
+  font-family: 'Special Elite', var(--font-mono);
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  border: 2.5px solid currentColor;
+  border-radius: 6px;
+  transform: rotate(-9deg);
+  opacity: 0.85;
+  filter: url(#rough-ink);
+  mix-blend-mode: multiply;
+}
+
+.stamp.reading {
+  color: #c0392b;
+}
+
+.stamp.completed {
+  color: #1f5f8b;
 }
 
 .cloth-cover {
@@ -443,7 +758,6 @@ const setCategory = (c: CatFilter) => {
 }
 
 .desk-text {
-  padding-right: 4.75rem;
   min-width: 0;
 }
 
@@ -476,7 +790,7 @@ const setCategory = (c: CatFilter) => {
 }
 
 .status.reading {
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: color-mix(in srgb, var(--accent) 40%, transparent);
   background: var(--accent-soft);
 }
@@ -528,7 +842,7 @@ const setCategory = (c: CatFilter) => {
 
 .chip-btn:hover {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .chip-btn.active {
@@ -539,7 +853,6 @@ const setCategory = (c: CatFilter) => {
 
 .count {
   font-size: 0.68rem;
-  opacity: 0.6;
   margin-left: 0.15rem;
 }
 
@@ -568,7 +881,7 @@ const setCategory = (c: CatFilter) => {
 
 .segmented button.active {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .mini-ribbon {
@@ -588,7 +901,9 @@ const setCategory = (c: CatFilter) => {
   position: relative;
   padding: 16px 16px 4px;
   border-radius: 10px;
-  background: linear-gradient(180deg, var(--wood-light), var(--wood) 40%, var(--wood-dark));
+  background:
+    repeating-linear-gradient(92deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 7px, rgba(255, 255, 255, 0.03) 7px 8px, transparent 8px 13px),
+    linear-gradient(180deg, var(--wood-light), var(--wood) 40%, var(--wood-dark));
   box-shadow:
     0 30px 60px -25px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -658,6 +973,7 @@ const setCategory = (c: CatFilter) => {
   position: relative;
   border-radius: 4px 4px 0 0;
   background:
+    radial-gradient(70% 85% at 50% -10%, rgba(255, 205, 140, 0.2), transparent 70%),
     linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent 28%),
     radial-gradient(120% 90% at 50% 40%, color-mix(in srgb, var(--back) 80%, #6b4a33), var(--back));
 }
@@ -914,9 +1230,21 @@ const setCategory = (c: CatFilter) => {
 }
 
 @media (max-width: 640px) {
+  /* phones: cover on top, the library card full width underneath */
   .desk-inner {
-    grid-template-columns: 92px minmax(0, 1fr);
-    gap: 1.1rem;
+    grid-template-columns: 1fr;
+    gap: 1.4rem;
+  }
+  .desk-cover {
+    width: 112px;
+    justify-self: center;
+  }
+  .card-slip {
+    padding-bottom: 3.6rem; /* the stamp gets its own space below the rows */
+    transform: none;
+  }
+  .stamp {
+    bottom: 0.9rem;
   }
   .desk {
     padding: 1.1rem 1.1rem 3.6rem;

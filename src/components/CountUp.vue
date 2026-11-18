@@ -4,9 +4,11 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const props = withDefaults(defineProps<{ value: string; duration?: number }>(), { duration: 1600 })
 
+// ordinals ("2nd") are shown as-is: counting up would flash "0nd", "1nd"
 const parts = computed(() => {
   const m = props.value.match(/^(\d+)(.*)$/)
-  return m ? { n: Number(m[1]), suffix: m[2] } : null
+  if (!m || /^(st|nd|rd|th)$/i.test(m[2])) return null
+  return { n: Number(m[1]), suffix: m[2] }
 })
 
 const el = ref<HTMLElement | null>(null)
@@ -53,7 +55,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <span ref="el" class="count-up" :aria-label="value">
+  <span ref="el" class="count-up">
+    <span class="sr-only">{{ value }}</span>
     <span aria-hidden="true">{{ shown }}{{ parts?.suffix }}</span>
   </span>
 </template>

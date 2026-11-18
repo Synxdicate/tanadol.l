@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { profile, projects, awards } from '../data/profile'
 import { books } from '../data/books'
 import BentoGrid from './BentoGrid.vue'
+import GithubActivity from './GithubActivity.vue'
 import TerminalLine from './TerminalLine.vue'
 import { articles } from '../data/articles'
 import ArticleCover from './ArticleCover.vue'
@@ -157,6 +158,9 @@ const clothFor = (title: string) => {
       <router-link to="/project" class="more-link font-mono">All projects →</router-link>
     </section>
 
+    <!-- Live GitHub activity -->
+    <GithubActivity v-reveal />
+
     <!-- Awards -->
     <section v-reveal class="block">
       <div class="section-head"><h2 class="section-label">/ Recent Awards</h2></div>
@@ -196,6 +200,9 @@ const clothFor = (title: string) => {
         v-for="row in (['left', 'right'] as const)"
         :key="row"
         class="marquee-container"
+        role="region"
+        tabindex="0"
+        :aria-label="row === 'left' ? 'Books I read, first row (scrollable)' : 'Books I read, second row (scrollable)'"
         :ref="setContainer(row)"
         :class="{ 'is-grabbing': row === 'left' ? isDownLeft : isDownRight }"
         @mousedown="(e) => onDown(e, row)"
@@ -211,7 +218,7 @@ const clothFor = (title: string) => {
             <div v-for="book in row === 'left' ? bookshelfRow1 : bookshelfRow2" :key="book.title + g" class="book-item">
               <div class="book-cover-wrap" :style="{ '--cloth': clothFor(book.title) }">
                 <span class="cloth" aria-hidden="true">{{ book.title }}</span>
-                <img
+                <img v-fade-img
                   :src="book.coverArt"
                   :alt="book.title"
                   class="book-cover"
@@ -257,7 +264,7 @@ const clothFor = (title: string) => {
   font-family: var(--font-script);
   font-weight: 400;
   font-size: clamp(4rem, 11vw, 6.5rem);
-  color: var(--accent);
+  color: var(--accent); /* large script text: 3:1 is enough */
   margin: 0;
   line-height: 0.95;
 }
@@ -327,7 +334,7 @@ const clothFor = (title: string) => {
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -362,7 +369,7 @@ const clothFor = (title: string) => {
 }
 
 .featured-card:hover .card-icon {
-  color: var(--accent);
+  color: var(--accent-text);
   opacity: 1;
   transform: translate(2px, -2px);
 }
@@ -407,7 +414,7 @@ const clothFor = (title: string) => {
 }
 
 .writing:hover .card-icon {
-  color: var(--accent);
+  color: var(--accent-text);
   opacity: 1;
   transform: translate(2px, -2px);
 }
@@ -421,7 +428,7 @@ const clothFor = (title: string) => {
 }
 
 .more-link:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .award-list {
@@ -464,7 +471,7 @@ const clothFor = (title: string) => {
 }
 
 .press:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: var(--accent);
 }
 
@@ -476,7 +483,7 @@ const clothFor = (title: string) => {
 .award-result {
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-text);
   text-align: right;
 }
 
@@ -579,7 +586,7 @@ const clothFor = (title: string) => {
 }
 
 .book-status.reading {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .book-status.completed {

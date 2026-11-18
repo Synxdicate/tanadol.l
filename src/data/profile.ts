@@ -92,6 +92,9 @@ export const awards: Award[] = [
   { title: 'Thailand Cyber Top Talent 2022 (Junior)', result: '2nd Place', year: 2022, category: 'Cybersecurity' },
 ]
 
+export const PROJECT_AREAS = ['Security', 'Web', 'Embedded & IoT', 'Tools & Labs'] as const
+export type ProjectArea = (typeof PROJECT_AREAS)[number]
+
 export interface Project {
   name: string
   kind: string
@@ -101,11 +104,14 @@ export interface Project {
   github?: string
   demo?: string
   featured?: boolean
+  /** filter group on the Projects page */
+  area: ProjectArea
 }
 
 export const projects: Project[] = [
   {
     name: 'AustenC2',
+    area: 'Security',
     kind: 'Red Team Tooling',
     desc: 'Cross-platform Command & Control framework built to simulate red-team tradecraft for penetration testing research.',
     highlights: [
@@ -118,6 +124,7 @@ export const projects: Project[] = [
   },
   {
     name: 'CertGuard',
+    area: 'Security',
     kind: 'Internal PKI Platform',
     desc: 'Automated certificate lifecycle management on a self-hosted Root CA, removing dependency on public CAs.',
     highlights: [
@@ -131,6 +138,7 @@ export const projects: Project[] = [
   },
   {
     name: 'smart-plant-box',
+    area: 'Embedded & IoT',
     kind: 'IoT',
     desc: 'Arduino sensor box streaming plant health data over a wireless pipeline to a live web dashboard.',
     highlights: [
@@ -144,6 +152,7 @@ export const projects: Project[] = [
   },
   {
     name: 'OpenSAT',
+    area: 'Web',
     kind: 'CubeSat Quest 2025 · Team Lead',
     desc: 'Concept platform democratizing public access to CubeSat sensor data — PostgreSQL backend and Vue.js web app.',
     stack: ['TypeScript', 'Vue.js', 'PostgreSQL'],
@@ -151,6 +160,7 @@ export const projects: Project[] = [
   },
   {
     name: 'VITA-CORE',
+    area: 'Web',
     kind: 'BDI Hackathon 2026 · Top 16 of 137',
     desc: 'Clinical decision-support web app for type 2 diabetes (T2DM), built for the BDI Young Innovator Hackathon.',
     stack: ['Vue.js', 'Vite'],
@@ -159,6 +169,7 @@ export const projects: Project[] = [
   },
   {
     name: 'WASHFLOW',
+    area: 'Web',
     kind: 'Web App',
     desc: 'Car-wash booking system: pick a branch and car type, book a slot, manage membership and history, plus an employee side.',
     stack: ['Vue.js', 'TypeScript'],
@@ -167,6 +178,7 @@ export const projects: Project[] = [
   },
   {
     name: 'Kao (ก้าว)',
+    area: 'Web',
     kind: 'Web App',
     desc: '12-week weights + running plan with a calorie / protein calculator, Thai food suggestions and a weight log.',
     stack: ['TypeScript', 'Vite'],
@@ -175,6 +187,7 @@ export const projects: Project[] = [
   },
   {
     name: 'Central_Clock',
+    area: 'Embedded & IoT',
     kind: 'Embedded',
     desc: 'C++ clock project with a segment mapper and tests on a MAX7219 LED display driver.',
     stack: ['C++', 'MAX7219'],
@@ -182,6 +195,7 @@ export const projects: Project[] = [
   },
   {
     name: 'Pwn-dbg_gef',
+    area: 'Security',
     kind: 'Tooling',
     desc: 'Debugger setup combining pwndbg and GEF for binary exploitation work.',
     stack: ['GDB', 'pwndbg', 'GEF'],
@@ -189,6 +203,7 @@ export const projects: Project[] = [
   },
   {
     name: 'p_db',
+    area: 'Tools & Labs',
     kind: 'Infra',
     desc: 'One-command PHP + MySQL dev stack with Docker Compose: Apache, MySQL and phpMyAdmin.',
     stack: ['Docker', 'PHP', 'MySQL'],
@@ -196,6 +211,7 @@ export const projects: Project[] = [
   },
   {
     name: 'ihatenetwork',
+    area: 'Tools & Labs',
     kind: 'Lab',
     desc: 'Packet Tracer labs for CCNA practice.',
     stack: ['Packet Tracer', 'Networking'],
@@ -203,6 +219,7 @@ export const projects: Project[] = [
   },
   {
     name: 'scanqr',
+    area: 'Web',
     kind: 'Web',
     desc: 'Camera-based QR scanner that captures and resolves links.',
     stack: ['Web'],
@@ -211,6 +228,7 @@ export const projects: Project[] = [
   },
   {
     name: 'IDWTLG',
+    area: 'Web',
     kind: 'Web',
     desc: 'Pomodoro timer — work in progress.',
     stack: ['Web'],
@@ -219,6 +237,7 @@ export const projects: Project[] = [
   },
   {
     name: 'Note',
+    area: 'Tools & Labs',
     kind: 'Knowledge Base',
     desc: 'A second brain for thoughts and research notes.',
     stack: ['Knowledge'],

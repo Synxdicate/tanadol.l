@@ -104,7 +104,7 @@ const status = computed(() => {
     </article>
 
     <router-link to="/books" class="card tile reading">
-      <img :src="reading.coverArt" :alt="reading.title" referrerpolicy="no-referrer" loading="lazy" />
+      <img v-fade-img :src="reading.coverArt" :alt="reading.title" referrerpolicy="no-referrer" loading="lazy" />
       <div>
         <span class="eyebrow font-mono">Now reading</span>
         <span class="r-title">{{ reading.title }}</span>
@@ -149,7 +149,7 @@ const status = computed(() => {
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -394,7 +394,7 @@ const status = computed(() => {
 }
 
 .reading:hover .r-more {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .a-links {
@@ -407,7 +407,7 @@ const status = computed(() => {
 }
 
 .a-links a:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* award: 2 × 1 */
@@ -439,7 +439,7 @@ const status = computed(() => {
 }
 
 .award:hover .corner {
-  color: var(--accent);
+  color: var(--accent-text);
   transform: translate(2px, -2px);
 }
 

@@ -69,7 +69,7 @@ const image = computed(() => findArticle(props.slug)?.cover)
 
 <template>
   <figure :class="['cover', kind, { compact }]" aria-hidden="true">
-    <img v-if="image" :src="image" alt="" class="photo" :loading="compact ? 'lazy' : 'eager'" />
+    <img v-fade-img v-if="image" :src="image" alt="" class="photo" :loading="compact ? 'lazy' : 'eager'" />
     <svg v-else viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice">
       <rect width="1200" height="400" class="ground" />
 

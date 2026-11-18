@@ -64,6 +64,8 @@ const toggleTheme = (e: MouseEvent) => {
   })
 }
 
+const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+
 // command palette (⌘K) and the events it sends
 const modKey = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl '
 const openPalette = () => window.dispatchEvent(new CustomEvent('site:open-palette'))
@@ -142,9 +144,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 
     <main id="main" class="content-area" tabindex="-1">
       <router-view v-slot="{ Component }">
-        <transition name="page-fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
+        <component :is="Component" />
       </router-view>
     </main>
 
@@ -164,6 +164,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
         <a :href="profile.links.linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="pi pi-linkedin"></i></a>
         <a :href="profile.links.htb" target="_blank" rel="noopener noreferrer" aria-label="Hack The Box profile"><i class="pi pi-flag"></i></a>
         <a :href="`mailto:${profile.email}`" aria-label="Email"><i class="pi pi-envelope"></i></a>
+        <button class="to-top" aria-label="Back to top" @click="toTop"><i class="pi pi-arrow-up"></i></button>
       </div>
     </footer>
   </div>
@@ -177,6 +178,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 }
 
 .header-glass {
+  view-transition-name: site-header; /* stays put while pages cross-fade */
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 100;
@@ -227,7 +229,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 
 .nav-link:hover,
 .nav-link.router-link-active {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .nav-actions {
@@ -253,7 +255,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 
 .icon-btn:hover {
   border-color: var(--line);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .menu-toggle {
@@ -277,7 +279,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 }
 
 .search-btn:hover kbd {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .skip-link {
@@ -352,11 +354,32 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 
 .footer-links {
   display: flex;
+  align-items: center;
   gap: 1.1rem;
 }
 
 .footer-links a:hover {
-  color: var(--accent);
+  color: var(--accent-text);
+}
+
+.to-top {
+  width: 28px;
+  height: 28px;
+  margin-left: 0.4rem;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 0.7rem;
+  transition: color 0.2s, border-color 0.2s, transform 0.25s var(--ease);
+}
+
+.to-top:hover {
+  color: var(--accent-text);
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 .footer-meta {
@@ -367,8 +390,8 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 }
 
 .credits {
-  font-size: 0.62rem;
-  opacity: 0.75;
+  font-size: 0.66rem;
+  color: var(--muted);
   line-height: 1.6;
   max-width: 560px;
 }
@@ -379,7 +402,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 }
 
 .credits a:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* keep the footer icons clear of the floating vinyl button and cat house:
@@ -394,17 +417,6 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
   }
 }
 
-.page-fade-enter-active,
-.page-fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-.page-fade-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.page-fade-leave-to {
-  opacity: 0;
-}
 
 @media (max-width: 640px) {
   .menu-toggle {
