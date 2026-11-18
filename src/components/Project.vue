@@ -109,7 +109,7 @@ const others = computed(() => inArea(area.value).filter((p) => !p.featured))
 }
 
 .count {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   margin-left: 0.15rem;
 }
 
@@ -137,7 +137,7 @@ const others = computed(() => inArea(area.value).filter((p) => !p.featured))
 }
 
 .kind {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--accent-text);

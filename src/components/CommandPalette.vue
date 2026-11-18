@@ -280,7 +280,7 @@ defineExpose({ isMac })
 
 kbd {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
   border: 1px solid var(--line);
@@ -297,7 +297,7 @@ kbd {
 
 .group {
   padding: 0.7rem 0.6rem 0.3rem;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
@@ -368,7 +368,7 @@ kbd {
   gap: 1.1rem;
   padding: 0.6rem 1rem;
   border-top: 1px solid var(--line);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 

@@ -348,7 +348,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocTap))
 .np-jump {
   grid-column: 2;
   justify-self: end;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -371,7 +371,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocTap))
 
 .credit {
   margin: 0.5rem 0 0;
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   color: var(--muted);
   text-align: right;
 }

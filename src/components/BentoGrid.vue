@@ -146,7 +146,7 @@ const status = computed(() => {
 }
 
 .eyebrow {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--accent-text);
@@ -244,7 +244,7 @@ const status = computed(() => {
   top: 1.1rem;
   display: flex;
   justify-content: space-between;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -279,7 +279,7 @@ const status = computed(() => {
 }
 
 .bar-year {
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   color: var(--muted);
   line-height: 1;
 }
@@ -305,7 +305,7 @@ const status = computed(() => {
 }
 
 .stat-label {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -334,7 +334,7 @@ const status = computed(() => {
 
 .tz,
 .presence {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -388,7 +388,7 @@ const status = computed(() => {
 
 .r-more {
   margin-top: 0.5rem;
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   color: var(--muted);
   transition: color 0.2s;
 }
@@ -402,7 +402,7 @@ const status = computed(() => {
   flex-wrap: wrap;
   gap: 0.4rem 1.1rem;
   margin-top: 0.7rem;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 

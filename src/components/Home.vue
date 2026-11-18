@@ -331,7 +331,7 @@ const clothFor = (title: string) => {
 }
 
 .kind {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--accent-text);
@@ -459,7 +459,7 @@ const clothFor = (title: string) => {
   padding: 0.05rem 0.4rem;
   border: 1px solid var(--line);
   border-radius: 4px;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted);
   vertical-align: middle;
@@ -553,7 +553,7 @@ const clothFor = (title: string) => {
   text-align: center;
   white-space: normal;
   font-family: var(--font-serif-th);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1.25;
   color: #f3e6c8;

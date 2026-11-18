@@ -39,7 +39,13 @@ export const setDescription = (text: string) => {
   tag.content = text
 }
 
+const setCanonical = (path: string) => {
+  const link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+  if (link) link.href = 'https://tanadol-l.vercel.app' + (path === '/' ? '/' : path.replace(/\/$/, ''))
+}
+
 router.afterEach((to) => {
+  if (to.name !== 'NotFound') setCanonical(to.path)
   if (to.meta.description) setDescription(to.meta.description as string)
   if (to.name === 'ArticleDetail') return // that page sets its own title
   const title = to.meta.title as string | undefined

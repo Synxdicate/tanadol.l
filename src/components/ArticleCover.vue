@@ -65,11 +65,29 @@ const dots = (() => {
 
 const kind = computed(() => (props.slug.includes('language') ? 'set' : 'math'))
 const image = computed(() => findArticle(props.slug)?.cover)
+// covers in public/articles/covers/ come in three widths (-sm 640, -md 1200, original 1600)
+const srcset = computed(() => {
+  const src = image.value
+  if (!src || !/^\/articles\/covers\/.+\.webp$/.test(src)) return undefined
+  const base = src.replace(/\.webp$/, '')
+  return `${base}-sm.webp 640w, ${base}-md.webp 1200w, ${src} 1600w`
+})
 </script>
 
 <template>
   <figure :class="['cover', kind, { compact }]" aria-hidden="true">
-    <img v-fade-img v-if="image" :src="image" alt="" class="photo" :loading="compact ? 'lazy' : 'eager'" />
+    <img
+      v-if="image"
+      v-fade-img
+      :src="image"
+      :srcset="srcset"
+      :sizes="compact ? '(max-width: 720px) 92vw, 320px' : '(max-width: 900px) 100vw, 840px'"
+      alt=""
+      class="photo"
+      :loading="compact ? 'lazy' : 'eager'"
+      :fetchpriority="compact ? 'auto' : 'high'"
+      decoding="async"
+    />
     <svg v-else viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice">
       <rect width="1200" height="400" class="ground" />
 

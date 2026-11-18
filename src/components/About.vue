@@ -298,7 +298,7 @@ const connect = [
 }
 
 .p-eyebrow {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--accent-text);
@@ -387,7 +387,7 @@ const connect = [
   padding: 0.05rem 0.4rem;
   border: 1px solid var(--line);
   border-radius: 4px;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted);
   vertical-align: middle;
@@ -505,7 +505,7 @@ const connect = [
 }
 
 .cert-id {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   color: var(--muted);
   margin-top: 0.3rem;
 }

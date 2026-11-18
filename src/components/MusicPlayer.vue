@@ -345,7 +345,7 @@ onUnmounted(() => {
 }
 
 .artist {
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   color: var(--muted);
   white-space: nowrap;
 }

@@ -332,6 +332,8 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 
 .content-area {
   flex: 1;
+  /* pages load lazily: reserve a full screen so the footer doesn't flash up and then jump (CLS) */
+  min-height: 100svh;
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
@@ -390,7 +392,7 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 }
 
 .credits {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   color: var(--muted);
   line-height: 1.6;
   max-width: 560px;

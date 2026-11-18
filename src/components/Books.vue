@@ -62,9 +62,10 @@ const spine = (b: Book) => {
   const h = hash(b.title)
   return {
     color: CLOTH[h % CLOTH.length],
-    width: 30 + ((h >> 4) % 18), // 30–47px
-    height: 82 + ((h >> 9) % 18), // 82–99% of the shelf height
-    bands: (h >> 13) % 3,
+    // unsigned shifts: a signed >> made some values negative (narrow spines, no gilt bands)
+    width: 30 + ((h >>> 4) % 18), // 30–47px
+    height: 82 + ((h >>> 9) % 18), // 82–99% of the shelf height
+    bands: (h >>> 13) % 3,
   }
 }
 
@@ -331,7 +332,6 @@ const setCategory = (c: CatFilter) => {
                   :data-title="b.title"
                   :class="['spine', `bands-${spine(b).bands}`, { active: selected.title === b.title, dim: !matches(b) }]"
                   :style="{ '--cloth': spine(b).color, width: spine(b).width + 'px' }"
-                  :aria-label="`${b.title} by ${b.author}, ${b.status.toLowerCase()}`"
                   :aria-pressed="selected.title === b.title"
                   @click="onSpineClick(b)"
                   @keydown="(e: KeyboardEvent) => onSpineKey(e, shelf.books, i)"
@@ -345,6 +345,8 @@ const setCategory = (c: CatFilter) => {
                   <span class="s-title">{{ b.title }}</span>
                   <span class="band" aria-hidden="true"></span>
                   <span class="s-author font-mono">{{ b.author.split(' ').slice(-1)[0] }}</span>
+                  <!-- the accessible name starts with the visible text, then adds the rest -->
+                  <span class="sr-only">— {{ b.author }}, {{ b.status === 'Reading' ? 'reading' : 'finished' }}</span>
                 </button>
               </li>
               <li class="slot bookend" aria-hidden="true"><span></span></li>
@@ -462,7 +464,7 @@ const setCategory = (c: CatFilter) => {
 }
 
 .ring-label .font-mono {
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -512,7 +514,7 @@ const setCategory = (c: CatFilter) => {
 .cb-n {
   color: var(--muted);
   text-align: right;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 900px) {
@@ -681,7 +683,7 @@ const setCategory = (c: CatFilter) => {
 }
 
 .slip-rows dt {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   color: #8a7a64;
 }
 
@@ -751,7 +753,7 @@ const setCategory = (c: CatFilter) => {
 }
 
 .f-author {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.8;
@@ -762,7 +764,7 @@ const setCategory = (c: CatFilter) => {
 }
 
 .desk-no {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -852,7 +854,7 @@ const setCategory = (c: CatFilter) => {
 }
 
 .count {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   margin-left: 0.15rem;
 }
 

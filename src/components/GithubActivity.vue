@@ -171,7 +171,7 @@ onMounted(async () => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem 1rem;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
