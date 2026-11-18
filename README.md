@@ -46,7 +46,7 @@ npm run dev      # เปิดดูเว็บที่ http://localhost:5173
    - วางรูปปกใน `public/articles/covers/` แล้วเพิ่มบรรทัด `cover: /articles/covers/ชื่อรูป.webp` และ `coverCredit: เครดิตภาพ` ในส่วนหัว
    - วาง PDF ใน `public/articles/` แล้วเพิ่ม `pdf: /articles/ชื่อไฟล์.pdf`
    - ถ้าไม่ใส่ภาพปก เว็บจะวาดลายให้เอง ถ้าไม่ใส่ PDF ปุ่มดาวน์โหลดจะซ่อนไป
-5. บทความเรียงตามวันที่ ล่าสุดอยู่บนสุด และ sitemap อัปเดตเองตอน build
+5. บทความเรียงตามวันที่ ล่าสุดอยู่บนสุด ส่วน sitemap และ RSS feed (`/rss.xml`) อัปเดตเองตอน build
 
 ### แก้ข้อมูลอื่น ๆ
 

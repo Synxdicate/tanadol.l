@@ -56,6 +56,7 @@ const formatDate = (iso: string) =>
     <p class="blog-note">
       More notes on the
       <a :href="profile.links.blog" target="_blank" rel="noopener noreferrer">blog <i class="pi pi-arrow-up-right"></i></a>
+      · Follow new essays via <a href="/rss.xml">RSS <i class="pi pi-rss"></i></a>
     </p>
   </div>
 </template>

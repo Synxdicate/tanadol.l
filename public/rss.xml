@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tanadol Langputeh — Essays</title>
+    <link>https://tanadol-l.vercel.app/article</link>
+    <atom:link href="https://tanadol-l.vercel.app/rss.xml" rel="self" type="application/rss+xml" />
+    <description>Essays on philosophy, mathematical logic and political theory, written in Thai.</description>
+    <language>th</language>
+    <item>
+      <title>ความไม่สมบูรณ์แบบของคณิตศาสตร์</title>
+      <link>https://tanadol-l.vercel.app/article/incompleteness-of-mathematics</link>
+      <guid isPermaLink="true">https://tanadol-l.vercel.app/article/incompleteness-of-mathematics</guid>
+      <pubDate>Sun, 18 Oct 2026 17:00:00 GMT</pubDate>
+      <description>จากพีทาโกรัสถึงเฟรเกอ คณิตศาสตร์ถูกมองเป็นภาษาของจักรวาลที่สมบูรณ์แบบ แต่รัสเซลล์และเกอเดิลแสดงให้เห็นขีดจำกัดของมัน บทความนี้เสนอว่าปัญหาไม่ได้อยู่ที่คณิตศาสตร์ไม่สมบูรณ์ แต่อยู่ที่เรายังเชื่อว่ามันสมบูรณ์ — ผ่านวิตต์เกนสไตน์ คาฟคา และรัสกิน</description>
+      <category>Philosophy</category>
+      <category>Mathematics</category>
+      <category>Logic</category>
+    </item>
+    <item>
+      <title>ภาษาและการศึกษาในฐานะกลไกที่รัฐใช้ผลิตซ้ำเส้นแบ่งว่าใครเป็น 'ประชาชน'</title>
+      <link>https://tanadol-l.vercel.app/article/language-education-and-the-people</link>
+      <guid isPermaLink="true">https://tanadol-l.vercel.app/article/language-education-and-the-people</guid>
+      <pubDate>Sun, 18 Oct 2026 17:00:00 GMT</pubDate>
+      <description>เริ่มจากคดีโสเกรตีส สู่คำถามว่าใครมีสิทธิ์พูดในรัฐ บทความใช้แนวคิด “เอกภาวะ” ของบาดิยูในภาษาทฤษฎีเซต ร่วมกับอัลธูแซร์ กรัมชี่ และร็องซีแยร์ เพื่อชี้ว่าโรงเรียนผลิตซ้ำเส้นแบ่งของ “ประชาชน” อย่างไร และเสนอให้คำถามว่า “ทำไม” ถูกนับเป็นคำพูด</description>
+      <category>Philosophy</category>
+      <category>Political Theory</category>
+      <category>Education</category>
+    </item>
+  </channel>
+</rss>
