@@ -29,7 +29,8 @@ const linkNotes = (html: string) =>
 
 watchEffect(() => {
   if (article.value) setDescription(article.value.abstract)
-  if (article.value) document.title = `${article.value.title} · Tanadol L.`
+  // the router skips titles for this route, so set one for both outcomes
+  document.title = article.value ? `${article.value.title} · Tanadol L.` : 'Not found · Tanadol L.'
 })
 
 // reading progress bar
@@ -124,17 +125,27 @@ const onProseFocus = (e: Event) => {
   const el = refFrom(e)
   if (el) showNote(el)
 }
-// touch: first tap opens the preview, a second tap on the same number jumps to the note
+// touch: first tap opens the preview, a second tap on the same number jumps to the note.
+// Track taps separately: on phones a tap also focuses the link first, and that focus
+// already opens the preview — so "preview is open" alone can't mean "second tap".
+let tappedRef = 0
 const onProseClick = (e: MouseEvent) => {
   const el = refFrom(e)
   if (!el || window.matchMedia('(hover: hover)').matches) return
-  if (note.value?.n !== Number(el.textContent)) {
+  const n = Number(el.textContent)
+  if (tappedRef !== n) {
     e.preventDefault()
+    tappedRef = n
     showNote(el)
+  } else {
+    tappedRef = 0
   }
 }
 const onDocTap = (e: Event) => {
-  if (note.value && !(e.target as Element).closest('.fn-ref, .note-pop')) note.value = null
+  if (note.value && !(e.target as Element).closest('.fn-ref, .note-pop')) {
+    note.value = null
+    tappedRef = 0
+  }
 }
 onMounted(() => document.addEventListener('pointerdown', onDocTap))
 onUnmounted(() => document.removeEventListener('pointerdown', onDocTap))
