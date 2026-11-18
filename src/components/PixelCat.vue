@@ -201,8 +201,10 @@ const toggleHome = () => {
 }
 
 const onResize = () => setTarget(tx, ty)
+const onCatRequest = () => toggleHome()
 
 onMounted(() => {
+  window.addEventListener('site:toggle-cat', onCatRequest)
   paint(houseCanvas.value, HOUSE, HOUSE_PALETTE)
   let pref: string | null = null
   try {
@@ -233,6 +235,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('site:toggle-cat', onCatRequest)
   cancelAnimationFrame(raf)
   clearTimeout(wanderTimer)
   window.removeEventListener('pointermove', onMove)

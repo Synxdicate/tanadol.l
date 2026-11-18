@@ -6,6 +6,7 @@ import CursorFx from './components/CursorFx.vue'
 import MusicPlayer from './components/MusicPlayer.vue'
 import BackgroundFx from './components/BackgroundFx.vue'
 import PixelCat from './components/PixelCat.vue'
+import CommandPalette from './components/CommandPalette.vue'
 
 const nav = [
   { to: '/about', label: 'About' },
@@ -63,6 +64,13 @@ const toggleTheme = (e: MouseEvent) => {
   })
 }
 
+// command palette (⌘K) and the events it sends
+const modKey = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl '
+const openPalette = () => window.dispatchEvent(new CustomEvent('site:open-palette'))
+const onThemeRequest = () => toggleTheme(new MouseEvent('click'))
+onMounted(() => window.addEventListener('site:toggle-theme', onThemeRequest))
+onUnmounted(() => window.removeEventListener('site:toggle-theme', onThemeRequest))
+
 // sliding highlight under the nav: sits on the active link, follows the hovered one
 const menuEl = ref<HTMLElement | null>(null)
 const indicator = ref({ x: 0, w: 0, visible: false })
@@ -91,11 +99,15 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
     <CursorFx />
     <MusicPlayer />
     <PixelCat />
+    <CommandPalette />
     <header :class="['header-glass', { scrolled }]">
       <nav class="nav-container" aria-label="Main">
         <router-link to="/" class="brand">{{ profile.shortName }}</router-link>
 
         <div class="nav-actions">
+        <button class="icon-btn search-btn" aria-label="Search and commands (Ctrl+K)" @click="openPalette">
+          <i class="pi pi-search"></i><kbd class="font-mono">{{ modKey }}K</kbd>
+        </button>
         <button class="icon-btn theme-toggle" :aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'" @click="toggleTheme">
           <i :class="['pi', isDark ? 'pi-sun' : 'pi-moon']"></i>
         </button>
@@ -248,6 +260,26 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
   display: none;
 }
 
+.search-btn {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  gap: 0.45rem;
+  padding: 0 0.6rem;
+  border-color: var(--line);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.search-btn kbd {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.search-btn:hover kbd {
+  color: var(--accent);
+}
+
 .skip-link {
   position: fixed;
   top: -100px;
@@ -355,7 +387,8 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 @media (max-width: 1100px) {
   .site-footer {
     flex-direction: column-reverse;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
     gap: 1.25rem;
     padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
   }
@@ -376,6 +409,16 @@ onUnmounted(() => window.removeEventListener('resize', toActive))
 @media (max-width: 640px) {
   .menu-toggle {
     display: inline-grid;
+  }
+
+  .search-btn {
+    width: 36px;
+    padding: 0;
+    border-color: transparent;
+  }
+
+  .search-btn kbd {
+    display: none;
   }
 
   .nav-actions {

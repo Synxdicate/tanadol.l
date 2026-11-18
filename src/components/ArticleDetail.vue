@@ -50,7 +50,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
     <div class="top-bar no-print">
       <router-link to="/article" class="back font-mono"><i class="pi pi-arrow-left"></i> All articles</router-link>
-      <a :href="`/articles/${article.slug}.pdf`" :download="`${article.title}.pdf`" class="pdf-link font-mono">
+      <a v-if="article.pdf" :href="article.pdf" :download="`${article.title}.pdf`" class="pdf-link font-mono">
         <i class="pi pi-download"></i> PDF
       </a>
     </div>

@@ -171,7 +171,19 @@ const frame = () => {
   raf = requestAnimationFrame(frame)
 }
 
+// requests from the command palette
+const onToggleRequest = () => toggle()
+const onNextRequest = () => {
+  if (playing.value) go(1)
+  else {
+    index.value = (index.value + 1) % pieces.length
+    play()
+  }
+}
+
 onMounted(() => {
+  window.addEventListener('site:toggle-music', onToggleRequest)
+  window.addEventListener('site:next-music', onNextRequest)
   raf = requestAnimationFrame(frame)
   if (readPref() === 'off') return
   window.addEventListener('pointerdown', onFirstInteraction, true)
@@ -179,6 +191,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('site:toggle-music', onToggleRequest)
+  window.removeEventListener('site:next-music', onNextRequest)
   removeFirstListeners()
   cancelAnimationFrame(raf)
   clearTimeout(suspendTimer)
